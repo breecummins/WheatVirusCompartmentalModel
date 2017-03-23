@@ -23,13 +23,13 @@ function test()
     population = [C, W, VW, VWn]
     # infection probability: C, W, VW, VWn
     # i.e. position beta[1,1] is C -> C probability, beta[2,1] is C -> W, beta[1,2] is W -> C, etc.
-    const beta = Float64[
+    const beta = SquareMatrix(Float64[
                          0.1 0.4 0.4 0.0; 
                          0.5 0.2 0.2 0.2;
                          0.3 0.2 0.05 0.05;
                          0.0 0.2 0.05 0.05;    
-                         ]
-    A = SquareMatrix(beta.*(population'))
+                         ])
+    A = SquareMatrix( (beta.matrix) .* (population') )
     IC_virus = Float64[0, 0.1, 0.15, 0]
     rows = Int[1,3,4]
     println("Power of 1")
