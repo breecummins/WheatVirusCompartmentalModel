@@ -16,10 +16,10 @@ function forwardMap(A::SquareMatrix,icv::Array{Float64,1},pop::Array{Int,1},rows
 end
 
 function test()
-    const C = 100
-    const W = 200
-    const VW = 10
-    const VWn = 15
+    C = 100
+    W = 200
+    VW = 10
+    VWn = 15
     population = [C, W, VW, VWn]
     # infection probability: C, W, VW, VWn
     # i.e. position beta[1,1] is C -> C probability, beta[2,1] is C -> W, beta[1,2] is W -> C, etc.
