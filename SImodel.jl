@@ -15,6 +15,21 @@ function forwardMap(A::SquareMatrix,icv::Array{Float64,1},pop::Array{Int,1},rows
     ( (eye(A.dim)+B)^pow ) * icv
 end
 
+function fullyear()
+
+end
+
+function setparams()
+    C = 100
+    W = 200
+    VW = 10
+    VWn = 15
+    IC_virus = Float64[0, 0.1, 0.15, 0]
+
+end
+
+
+
 function test()
     C = 100
     W = 200
