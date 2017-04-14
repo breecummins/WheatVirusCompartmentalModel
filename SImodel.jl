@@ -34,7 +34,6 @@ function stepwise(param::Parameter,icv::Array{Float64,1},rows::Array{Int,1},pow:
     icv
 end
 
-
 function fullyear(IC_virus = Float64[0, 0.5, 0, 0])
     param = setparams()
     Cnminus1 = 0.9*param.population[1] #fake param
@@ -64,18 +63,12 @@ function fullyear(IC_virus = Float64[0, 0.5, 0, 0])
 end
 
 function setparams()
-    C = 100
-    VW = 10
-    W = 200
-    VWn = 15
+    C = 1000
+    VW = 100
+    W = 20000
+    VWn = 150
     pop = [C, VW, W, VWn]
-    # beta = SquareMatrix(Float64[
-    #                      0.1 0.8 0.8 0.0; 
-    #                      0.5 0.1 0.6 0.0;
-    #                      0.5 0.6 0.6 0.0;
-    #                      0.0 0.0 0.6 0.0;    
-    #                      ])
-    beta = SquareMatrix(0.001*Float64[
+    beta = SquareMatrix(Float64[
                          0.1 0.8 0.8 0.0; 
                          0.5 0.1 0.6 0.0;
                          0.5 0.6 0.6 0.0;
@@ -85,34 +78,4 @@ function setparams()
     Parameter(pop,beta)
 end
 
-
-
-function test()
-    C = 100
-    W = 200
-    VW = 10
-    VWn = 15
-    population = [C, W, VW, VWn]
-    # infection probability: C, W, VW, VWn
-    # i.e. position beta[1,1] is C -> C probability, beta[2,1] is C -> W, beta[1,2] is W -> C, etc.
-    const beta = SquareMatrix(Float64[
-                         0.1 0.4 0.4 0.0; 
-                         0.5 0.2 0.2 0.2;
-                         0.3 0.2 0.05 0.05;
-                         0.0 0.2 0.05 0.05;    
-                         ])
-    param = Parameter(population,beta)
-    # A = SquareMatrix( (beta.matrix) .* (population') )
-    IC_virus = Float64[0, 0.1, 0.15, 0]
-    rows = Int[1,3,4]
-    println("Power of 1")
-    println(forwardMap(param,IC_virus,rows,1))
-    println("Power of 2 in 1 step")
-    println(forwardMap(param,IC_virus,rows,2))
-    println("Power of 2 in 2 steps")
-    V1 = forwardMap(param,IC_virus,rows,1)
-    println(forwardMap(param,V1,rows,1))
-end
-
-# test()
 println(fullyear())
