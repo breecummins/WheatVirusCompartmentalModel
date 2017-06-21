@@ -13,6 +13,7 @@ end
 type ClimateParameter
     VWpop::Int
     time_periods::Array{Float64}
+    beta5::Proportion
     tau1::Float64
     gamma2::Proportion
 end
@@ -66,12 +67,14 @@ function forwardEuler(A::SquareMatrix,param::Parameter,icv::Array{Float64,1},row
 end
 
 function fullyear(param::Parameter,IC_virus::Array{Float64,1},steps_per_time::Int)
+    # volunteer wheat only
+    x0 = param.climate.time_periods[1]
+    V0 = Float64[0, 1 - ( 1 - IC_virus[2] )*exp(-param.beta.matrix[2,2] * x0), 0, 0]
     # construct transmission/population matrix A
     A = SquareMatrix((param.beta.matrix) .* (param.population'))
-    # volunteer wheat only
-    rows0 = [2]
-    x0 = param.climate.time_periods[1]
-    V0 = forwardEuler(A,param,IC_virus,rows0,x0,convert(Int,x0*steps_per_time))
+    # # alternative method
+    # rows0 = [2]
+    # V0 = forwardEuler(A,param,IC_virus,rows0,x0,convert(Int,x0*steps_per_time))
     # volunteer wheat -> wheat and cheatgrass
     # this is split into 3 different steps to record differing yield loss to infection
     rows1 = [1,2,3]
@@ -84,23 +87,24 @@ function fullyear(param::Parameter,IC_virus::Array{Float64,1},steps_per_time::In
     x4 = param.climate.time_periods[4]
     V4 = forwardEuler(A,param,V3,rows1,x4,convert(Int,x4*steps_per_time))
     # wheat -> new volunteer wheat after cheatgrass death
-    rows5 = [3,4]
+    rows5 = [2,3,4]
     x5 = param.climate.time_periods[5]
     V5 = forwardEuler(A,param,V4,rows5,x5,convert(Int,x5*steps_per_time))
     (V1,V3,V5)
 end
 
-function multiyear(yearly_climates=Function[], IC_populations=Int[], IC_virus=Float64[]; steps_per_time=500)
+function multiyear(yearly_climates=Function[], ICs=Float64[]; steps_per_time=500)
     yearly_climates = reverse(yearly_climates) # julia pops from the back
     results = []
     while length(yearly_climates) > 0
         climate = pop!(yearly_climates)
-        param = setparams(climate,IC_populations)
+        populations = map((x) -> convert(Int,x),ICs[1:3])
+        param = setparams(climate,populations)
+        IC_virus = [0, ICs[4], 0, 0]
         (V1,V3,V5) = fullyear(param,IC_virus,steps_per_time)
         (Cnplus1,Ynplus1) = wheat_yield(param,V1,V3,V5)
         append!(results,[(Cnplus1,Ynplus1,V5)])
-        IC_virus = Float64[0, V5[4], 0, 0]
-        IC_populations = Int[param.population[1],Cnplus1,param.climate.VWpop]
+        ICs = Float64[param.population[1],Cnplus1,param.climate.VWpop,V5[4]]
     end
     results
 end
@@ -117,11 +121,16 @@ function setparams(climate::Function,ICs::Array{Int,1})
     Cnminus1 = ICs[1]
     climate_parameter = climate()
     pop = Int[ICs[2], ICs[3], W, climate_parameter.VWpop]
+    beta1=Proportion(0.05)
+    beta2=Proportion(0.25)
+    beta3=Proportion(0.3)
+    beta4=Proportion(0.5)
+    beta5= climate_parameter.beta5
     beta = SquareMatrix(Float64[
-                         0.05 0.25  0.25 0.0; 
-                         0.3  0.25  0.5  0.0;
-                         0.3  0.5   0.5  0.0;
-                         0.0  0.0   0.5  0.0;    
+                         beta1.prop beta2.prop beta2.prop 0.0; 
+                         beta3.prop beta5.prop beta4.prop 0.0;
+                         beta3.prop beta4.prop beta4.prop 0.0;
+                         0.0        0.0        beta4.prop 0.0;    
                          ])
     tau2 = 3.0 # can exceed 1 (cheatgrass plants per plant from previous year)
     tau3 = Proportion(0.1)  # free parameter (competition effect on cheatgrass from wheat)
@@ -131,7 +140,7 @@ function setparams(climate::Function,ICs::Array{Int,1})
 end
 
 function climate_ambient_nohail()
-    VWpop = convert(Int,1e5) # 10 plants/m^2 in one hectare field
+    (VWpop,beta5) = nohail() 
     x0 = 3 # 3 time units = 6 weeks; these should change for hot and hot and dry climate scenarios, but I don't know how yet
     x1 = 2.5 
     x3 = 6
@@ -140,11 +149,11 @@ function climate_ambient_nohail()
     time_periods = Float64[x0,x1,x3,x4,x5]
     tau1 = 6.0 #free parameter -- should be higher under hot conditions and higher yet under hot and dry conditions
     gamma2 = Proportion(1) #free parameter -- should go down as climate gets worse, should be a function of cheatgrass
-    ClimateParameter(VWpop, time_periods, tau1, gamma2)
+    ClimateParameter(VWpop, time_periods, beta5, tau1, gamma2)
 end
 
 function climate_ambient_hail()
-    VWpop = convert(Int,1e6) # 100 plants/m^2 in one hectare field
+    (VWpop,beta5) = hail() 
     x0 = 3 # 3 time units = 6 weeks; these should change for hot and hot and dry climate scenarios, but I don't know how yet
     x1 = 2.5 
     x3 = 6
@@ -153,11 +162,11 @@ function climate_ambient_hail()
     time_periods = Float64[x0,x1,x3,x4,x5]
     tau1 = 6.0 #free parameter -- should be higher under hot conditions and higher yet under hot and dry conditions
     gamma2 = Proportion(1) #free parameter -- should go down as climate gets worse, should be a function of cheatgrass
-    ClimateParameter(VWpop, time_periods, tau1, gamma2)
+    ClimateParameter(VWpop, time_periods, beta5, tau1, gamma2)
 end
 
 function climate_hot_nohail()
-    VWpop = convert(Int,1e5) # 10 plants/m^2 in one hectare field
+    (VWpop,beta5) = nohail() 
     x0 = 3 # 3 time units = 6 weeks; these should change for hot and hot and dry climate scenarios, but I don't know how yet
     x1 = 2.5 
     x3 = 6
@@ -166,11 +175,11 @@ function climate_hot_nohail()
     time_periods = Float64[x0,x1,x3,x4,x5]
     tau1 = 12.0 #free parameter -- should be higher yet under hot and dry conditions
     gamma2 = Proportion(0.83) #free parameter -- should go down as climate gets worse, should be a function of cheatgrass
-    ClimateParameter(VWpop, time_periods, tau1, gamma2)
+    ClimateParameter(VWpop, time_periods, beta5, tau1, gamma2)
 end
 
 function climate_hot_hail()
-    VWpop = convert(Int,1e6) # 10 plants/m^2 in one hectare field
+    (VWpop,beta5) = hail() 
     x0 = 3 # 3 time units = 6 weeks; these should change for hot and hot and dry climate scenarios, but I don't know how yet
     x1 = 2.5 
     x3 = 6
@@ -179,11 +188,11 @@ function climate_hot_hail()
     time_periods = Float64[x0,x1,x3,x4,x5]
     tau1 = 12.0 #free parameter -- should be higher yet under hot and dry conditions
     gamma2 = Proportion(0.83) #free parameter -- should go down as climate gets worse, should be a function of cheatgrass
-    ClimateParameter(VWpop, time_periods, tau1, gamma2)
+    ClimateParameter(VWpop, time_periods, beta5, tau1, gamma2)
 end
 
 function climate_hotdry_nohail()
-    VWpop = convert(Int,1e5) # 10 plants/m^2 in one hectare field
+    (VWpop,beta5) = nohail() 
     x0 = 3 # 3 time units = 6 weeks; these should change for hot and hot and dry climate scenarios, but I don't know how yet
     x1 = 2.5 
     x3 = 6
@@ -192,11 +201,11 @@ function climate_hotdry_nohail()
     time_periods = Float64[x0,x1,x3,x4,x5]
     tau1 = 24.0 #free parameter -- should be higher than the other conditions
     gamma2 = Proportion(0.69) #free parameter -- should go down as climate gets worse, should be a function of cheatgrass
-    ClimateParameter(VWpop, time_periods, tau1, gamma2)
+    ClimateParameter(VWpop, time_periods, beta5, tau1, gamma2)
 end
 
 function climate_hotdry_hail()
-    VWpop = convert(Int,1e6) # 10 plants/m^2 in one hectare field
+    (VWpop,beta5) = hail() 
     x0 = 3 # 3 time units = 6 weeks; these should change for hot and hot and dry climate scenarios, but I don't know how yet
     x1 = 2.5 
     x3 = 6
@@ -205,9 +214,18 @@ function climate_hotdry_hail()
     time_periods = Float64[x0,x1,x3,x4,x5]
     tau1 = 24.0 #free parameter -- should be higher than the other conditions
     gamma2 = Proportion(0.69) #free parameter -- should go down as climate gets worse, should be a function of cheatgrass
-    ClimateParameter(VWpop, time_periods, tau1, gamma2)
+    ClimateParameter(VWpop, time_periods, beta5, tau1, gamma2)
 end
 
+function hail()
+    # 100 plants/m^2 in one hectare field
+    (convert(Int,1e6),Proportion(0.25))
+end
+
+function nohail()
+    # 10 plants/m^2 in one hectare field
+    (convert(Int,1e5),Proportion(0.025))
+end
 # # numerical stability testing
 # M1 = multiyear([climate_ambient_nohail,climate_ambient_nohail],steps_per_time=20)
 # M2 = multiyear([climate_ambient_nohail,climate_ambient_nohail],steps_per_time=100)
@@ -223,10 +241,9 @@ end
 # end
 
 yearly_climates = [climate_ambient_nohail,climate_hot_hail,climate_hotdry_hail,climate_hotdry_nohail]
-IC_populations = Int[convert(Int,3.3e5),convert(Int,3.3e5),convert(Int,1e6)] # Cn-1, Cn, VWn population numbers
-IC_virus=Float64[0, 0.5, 0, 0] # C, VW, W, VW new proportion infected
+ICs = Float64[3.3e5,3.3e5,1e6,0.5] # Cn-1 pop, Cn pop, VWn pop, VWn prop infected
 
-M = multiyear(yearly_climates,IC_populations,IC_virus)
+M = multiyear(yearly_climates,ICs)
 c =0
 for m in M
     c+=1
