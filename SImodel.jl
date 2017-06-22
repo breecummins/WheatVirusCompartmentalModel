@@ -66,15 +66,37 @@ function forwardEuler(A::SquareMatrix,param::Parameter,icv::Array{Float64,1},row
     icv
 end
 
+function testsolver()
+    ICs = Float64[3.3e5,3.3e5,1e6,0.5] # Cn-1 pop, Cn pop, VWn pop, VWn prop infected
+    populations = map((x) -> convert(Int,x),ICs[1:3])
+    param = setparams(climate_ambient_nohail,populations)
+    IC_virus = [0, ICs[4], 0, 0]
+    A = SquareMatrix((param.beta.matrix) .* (param.population'))
+    x0 = param.climate.time_periods[1]
+    beta = param.beta.matrix[2,2]
+    C = (1 - IC_virus[2]) / IC_virus[2]
+    intVW = exp(beta * x0)  / (exp(beta * x0) + C)
+    rows0 = [2]
+    numsteps = 1000
+    V0 = forwardEuler(A,param,IC_virus,rows0,x0,convert(Int,x0*numsteps))
+    println("Exact soln, FE with $numsteps steps, Difference: \n$intVW, $(V0[2]), $(abs(intVW - V0[2]))")
+end
+
+
 function fullyear(param::Parameter,IC_virus::Array{Float64,1},steps_per_time::Int)
     # volunteer wheat only
     x0 = param.climate.time_periods[1]
-    V0 = Float64[0, 1 - ( 1 - IC_virus[2] )*exp(-param.beta.matrix[2,2] * x0), 0, 0]
+    beta = param.beta.matrix[2,2]
+    C = (1 - IC_virus[2]) / IC_virus[2]
+    intVW = exp(beta * x0)  / (exp(beta * x0) + C)
+    V0 = Float64[0, intVW, 0, 0]
+    # println(V0[2])
     # construct transmission/population matrix A
     A = SquareMatrix((param.beta.matrix) .* (param.population'))
     # # alternative method
     # rows0 = [2]
     # V0 = forwardEuler(A,param,IC_virus,rows0,x0,convert(Int,x0*steps_per_time))
+    # println(V0[2])
     # volunteer wheat -> wheat and cheatgrass
     # this is split into 3 different steps to record differing yield loss to infection
     rows1 = [1,2,3]
@@ -240,9 +262,10 @@ end
 #     end
 # end
 
-yearly_climates = [climate_ambient_nohail,climate_hot_hail,climate_hotdry_hail,climate_hotdry_nohail]
+yearly_climates = [climate_ambient_nohail, climate_hot_hail, climate_hotdry_hail, climate_hotdry_nohail]
 ICs = Float64[3.3e5,3.3e5,1e6,0.5] # Cn-1 pop, Cn pop, VWn pop, VWn prop infected
 
+println("climate_ambient_nohail, climate_hot_hail, climate_hotdry_hail, climate_hotdry_nohail")
 M = multiyear(yearly_climates,ICs)
 c =0
 for m in M
@@ -250,3 +273,4 @@ for m in M
     println("Year $c: $m")
 end
 
+# testsolver()
