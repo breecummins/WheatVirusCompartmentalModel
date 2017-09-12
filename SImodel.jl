@@ -29,27 +29,6 @@ type Parameter
     gamma13::Proportion
 end
 
-# # The functions forwardMap and stepwise show too much numerical error
-# function forwardMap(param::Parameter,icv::Array{Float64,1},rows::Array{Int,1},pow::Int)
-#     A = SquareMatrix((param.beta.matrix) .* (param.population'))
-#     # perform forward mapping of initial conditions icv on populations pop restricted to indices in rows
-#     B = A.matrix .* (1 - icv) / sum(param.population[rows])
-#     # zero out entries that are not in rows
-#     rem = filter(x -> !(x in rows), 1:A.dim) 
-#     B[:,rem] = B[rem,:] = 0
-#     # perform the forward map over pow time units
-#     ( (eye(A.dim)+B)^pow ) * icv
-# end
-
-# function stepwise(param::Parameter,icv::Array{Float64,1},rows::Array{Int,1},pow::Int)
-#     # limits numerical error
-#     while pow >0
-#         icv = forwardMap(param,icv,rows,1)
-#         pow -= 1
-#     end
-#     icv
-# end
-
 function forwardEuler(A::SquareMatrix,param::Parameter,icv::Array{Float64,1},rows::Array{Int,1},time_per::Float64,numsteps::Int)
     # limits numerical error as compared to forwardMap
     timestep = time_per/numsteps
@@ -66,10 +45,10 @@ function forwardEuler(A::SquareMatrix,param::Parameter,icv::Array{Float64,1},row
     icv
 end
 
-function testsolver()
+function testsolver(numsteps=1000,climate=(climate_ambient,nohail))
     ICs = Float64[3.3e5,3.3e5,1e6,0.5] # Cn-1 pop, Cn pop, VWn pop, VWn prop infected
     populations = map((x) -> convert(Int,x),ICs[1:3])
-    param = setparams(climate_ambient_nohail,populations)
+    param = setparams(climate,populations)
     IC_virus = [0, ICs[4], 0, 0]
     A = SquareMatrix((param.beta.matrix) .* (param.population'))
     x0 = param.climate.time_periods[1]
@@ -77,7 +56,6 @@ function testsolver()
     C = (1 - IC_virus[2]) / IC_virus[2]
     intVW = exp(beta * x0)  / (exp(beta * x0) + C)
     rows0 = [2]
-    numsteps = 1000
     V0 = forwardEuler(A,param,IC_virus,rows0,x0,convert(Int,x0*numsteps))
     println("Exact soln, FE with $numsteps steps, Difference: \n$intVW, $(V0[2]), $(abs(intVW - V0[2]))")
 end
@@ -86,17 +64,13 @@ end
 function fullyear(param::Parameter,IC_virus::Array{Float64,1},steps_per_time::Int)
     # volunteer wheat only
     x0 = param.climate.time_periods[1]
+    # construct V0 exactly instead of using forward Euler
     beta = param.beta.matrix[2,2]
     C = (1 - IC_virus[2]) / IC_virus[2]
     intVW = exp(beta * x0)  / (exp(beta * x0) + C)
     V0 = Float64[0, intVW, 0, 0]
-    # println(V0[2])
     # construct transmission/population matrix A
     A = SquareMatrix((param.beta.matrix) .* (param.population'))
-    # # alternative method
-    # rows0 = [2]
-    # V0 = forwardEuler(A,param,IC_virus,rows0,x0,convert(Int,x0*steps_per_time))
-    # println(V0[2])
     # volunteer wheat -> wheat and cheatgrass
     # this is split into 3 different steps to record differing yield loss to infection
     rows1 = [1,2,3]
@@ -115,7 +89,7 @@ function fullyear(param::Parameter,IC_virus::Array{Float64,1},steps_per_time::In
     (V1,V3,V5)
 end
 
-function multiyear(yearly_climates=Function[], ICs=Float64[]; steps_per_time=500)
+function multiyear(yearly_climates=Array{Tuple{Function,Bool},1}, ICs=Float64[]; steps_per_time=500)
     yearly_climates = reverse(yearly_climates) # julia pops from the back
     results = []
     while length(yearly_climates) > 0
@@ -137,22 +111,22 @@ function wheat_yield(param::Parameter,V1::Array{Float64,1},V3::Array{Float64,1},
     (Cnplus1,Ynplus1)
 end
 
-function setparams(climate::Function,ICs::Array{Int,1})
+function setparams(climate::Tuple{Function,Bool},ICs::Array{Int,1})
     # ICs=Int[Cnminus1,Cn,VWpop]
     W = convert(Int,2.25e6) # 225 plants/m^2 in one hectare field
     Cnminus1 = ICs[1]
-    climate_parameter = climate()
+    climate_parameter = climate[1](W,climate[2])
     pop = Int[ICs[2], ICs[3], W, climate_parameter.VWpop]
-    beta1=Proportion(0.05)
-    beta2=Proportion(0.25)
-    beta3=Proportion(0.3)
-    beta4=Proportion(0.5)
-    beta5= climate_parameter.beta5
+    beta1=Proportion(0.05) # cheatgrass to cheatgrass
+    beta2=Proportion(0.25) # wheat/volunteer wheat to cheatgrass
+    beta3=Proportion(0.3) #cheatgrass to wheat/volunteer wheat
+    beta4=Proportion(0.5) # wheat to wheat/volunteer wheat
+    beta5= climate_parameter.beta5 # volunteer wheat to volunteer wheat
     beta = SquareMatrix(Float64[
                          beta1.prop beta2.prop beta2.prop 0.0; 
                          beta3.prop beta5.prop beta4.prop 0.0;
                          beta3.prop beta4.prop beta4.prop 0.0;
-                         0.0        0.0        beta4.prop 0.0;    
+                         0.0        beta4.prop beta4.prop 0.0;    
                          ])
     tau2 = 3.0 # can exceed 1 (cheatgrass plants per plant from previous year)
     tau3 = Proportion(0.1)  # free parameter (competition effect on cheatgrass from wheat)
@@ -161,8 +135,8 @@ function setparams(climate::Function,ICs::Array{Int,1})
     Parameter(pop,beta,climate_parameter,Cnminus1,tau2,tau3,gamma11,gamma13)
 end
 
-function climate_ambient_nohail()
-    (VWpop,beta5) = nohail() 
+function climate_ambient(W,ishail=true)
+    (VW,beta5) = hail(W,ishail)
     x0 = 3 # 3 time units = 6 weeks; these should change for hot and hot and dry climate scenarios, but I don't know how yet
     x1 = 2.5 
     x3 = 6
@@ -171,24 +145,11 @@ function climate_ambient_nohail()
     time_periods = Float64[x0,x1,x3,x4,x5]
     tau1 = 6.0 #free parameter -- should be higher under hot conditions and higher yet under hot and dry conditions
     gamma2 = Proportion(1) #free parameter -- should go down as climate gets worse, should be a function of cheatgrass
-    ClimateParameter(VWpop, time_periods, beta5, tau1, gamma2)
+    ClimateParameter(VW, time_periods, beta5, tau1, gamma2)
 end
 
-function climate_ambient_hail()
-    (VWpop,beta5) = hail() 
-    x0 = 3 # 3 time units = 6 weeks; these should change for hot and hot and dry climate scenarios, but I don't know how yet
-    x1 = 2.5 
-    x3 = 6
-    x4 = 3 
-    x5 = 1 
-    time_periods = Float64[x0,x1,x3,x4,x5]
-    tau1 = 6.0 #free parameter -- should be higher under hot conditions and higher yet under hot and dry conditions
-    gamma2 = Proportion(1) #free parameter -- should go down as climate gets worse, should be a function of cheatgrass
-    ClimateParameter(VWpop, time_periods, beta5, tau1, gamma2)
-end
-
-function climate_hot_nohail()
-    (VWpop,beta5) = nohail() 
+function climate_hot(W,ishail=true)
+    (VW,beta5) = hail(W,ishail)
     x0 = 3 # 3 time units = 6 weeks; these should change for hot and hot and dry climate scenarios, but I don't know how yet
     x1 = 2.5 
     x3 = 6
@@ -197,57 +158,37 @@ function climate_hot_nohail()
     time_periods = Float64[x0,x1,x3,x4,x5]
     tau1 = 12.0 #free parameter -- should be higher yet under hot and dry conditions
     gamma2 = Proportion(0.83) #free parameter -- should go down as climate gets worse, should be a function of cheatgrass
-    ClimateParameter(VWpop, time_periods, beta5, tau1, gamma2)
+    ClimateParameter(VW, time_periods, beta5, tau1, gamma2)
 end
 
-function climate_hot_hail()
-    (VWpop,beta5) = hail() 
+function climate_hotdry(W,ishail=true)
+    (VW,beta5) = hail(W,ishail)
     x0 = 3 # 3 time units = 6 weeks; these should change for hot and hot and dry climate scenarios, but I don't know how yet
     x1 = 2.5 
     x3 = 6
     x4 = 3 
     x5 = 1 
     time_periods = Float64[x0,x1,x3,x4,x5]
-    tau1 = 12.0 #free parameter -- should be higher yet under hot and dry conditions
-    gamma2 = Proportion(0.83) #free parameter -- should go down as climate gets worse, should be a function of cheatgrass
-    ClimateParameter(VWpop, time_periods, beta5, tau1, gamma2)
-end
-
-function climate_hotdry_nohail()
-    (VWpop,beta5) = nohail() 
-    x0 = 3 # 3 time units = 6 weeks; these should change for hot and hot and dry climate scenarios, but I don't know how yet
-    x1 = 2.5 
-    x3 = 6
-    x4 = 3 
-    x5 = 1 
-    time_periods = Float64[x0,x1,x3,x4,x5]
-    tau1 = 24.0 #free parameter -- should be higher than the other conditions
+    tau1 = 16.0 #free parameter -- should be higher than the other conditions
     gamma2 = Proportion(0.69) #free parameter -- should go down as climate gets worse, should be a function of cheatgrass
-    ClimateParameter(VWpop, time_periods, beta5, tau1, gamma2)
+    ClimateParameter(VW, time_periods, beta5, tau1, gamma2)
 end
 
-function climate_hotdry_hail()
-    (VWpop,beta5) = hail() 
-    x0 = 3 # 3 time units = 6 weeks; these should change for hot and hot and dry climate scenarios, but I don't know how yet
-    x1 = 2.5 
-    x3 = 6
-    x4 = 3 
-    x5 = 1 
-    time_periods = Float64[x0,x1,x3,x4,x5]
-    tau1 = 24.0 #free parameter -- should be higher than the other conditions
-    gamma2 = Proportion(0.69) #free parameter -- should go down as climate gets worse, should be a function of cheatgrass
-    ClimateParameter(VWpop, time_periods, beta5, tau1, gamma2)
+function hail(W,ishail)
+    # 100 plants/m^2 in one hectare field for hail, 10 for no hail
+    VW = ishail ? convert(Int,1e6) : convert(Int,1e5)
+    beta5 = Proportion(0.5 * VW / W) 
+    (VW,beta5)
 end
 
-function hail()
-    # 100 plants/m^2 in one hectare field
-    (convert(Int,1e6),Proportion(0.25))
-end
+# test the forward Euler solver
+testsolver(100)
+testsolver(250)
+testsolver(500)
+testsolver(750)
+testsolver(1000)
 
-function nohail()
-    # 10 plants/m^2 in one hectare field
-    (convert(Int,1e5),Proportion(0.025))
-end
+
 # # numerical stability testing
 # M1 = multiyear([climate_ambient_nohail,climate_ambient_nohail],steps_per_time=20)
 # M2 = multiyear([climate_ambient_nohail,climate_ambient_nohail],steps_per_time=100)
@@ -262,7 +203,7 @@ end
 #     end
 # end
 
-yearly_climates = [climate_ambient_nohail, climate_hot_hail, climate_hotdry_hail, climate_hotdry_nohail]
+yearly_climates = [(climate_ambient,false), (climate_hot,true), (climate_hotdry,true), (climate_hotdry,false)]
 ICs = Float64[3.3e5,3.3e5,1e6,0.5] # Cn-1 pop, Cn pop, VWn pop, VWn prop infected
 
 println("climate_ambient_nohail, climate_hot_hail, climate_hotdry_hail, climate_hotdry_nohail")
@@ -273,4 +214,3 @@ for m in M
     println("Year $c: $m")
 end
 
-# testsolver()
