@@ -15,7 +15,8 @@ type ClimateParameter
     time_periods::Array{Float64}
     beta5::Proportion
     tau1::Float64
-    gamma2::Proportion
+    low_gamma2::Proportion
+    high_gamma2::Proportion
 end
 
 type Parameter
@@ -106,8 +107,9 @@ function multiyear(yearly_climates=Array{Tuple{Function,Bool},1}, ICs=Float64[];
 end
 
 function wheat_yield(param::Parameter,V1::Array{Float64,1},V3::Array{Float64,1},V5::Array{Float64,1})
-    Cnplus1 = convert(Int,round(param.tau3.prop*( param.climate.tau1*param.population[1] + param.tau2*param.Cnminus1 ))) 
-    Ynplus1 = param.climate.gamma2.prop*( param.gamma11.prop*V1[3] + param.gamma13.prop*(V3[3] - V1[3]) + 1 - V3[3] ) 
+    Cnplus1 = convert(Int,round(param.tau3.prop*( param.climate.tau1*param.population[1] + param.tau2*param.Cnminus1 )))
+    gamma2 = param.population[1] <= 5e5 ? param.climate.low_gamma2.prop : param.climate.high_gamma2.prop #arbitrary threshold
+    Ynplus1 = (1-gamma2)*( param.gamma11.prop*V1[3] + param.gamma13.prop*(V3[3] - V1[3]) + 1 - V3[3] ) 
     (Cnplus1,Ynplus1)
 end
 
@@ -144,8 +146,9 @@ function climate_ambient(W,ishail=true)
     x5 = 1 
     time_periods = Float64[x0,x1,x3,x4,x5]
     tau1 = 6.0 #free parameter -- should be higher under hot conditions and higher yet under hot and dry conditions
-    gamma2 = Proportion(1) #free parameter -- should go down as climate gets worse, should be a function of cheatgrass
-    ClimateParameter(VW, time_periods, beta5, tau1, gamma2)
+    low_gamma2 = Proportion(0.34) 
+    high_gamma2 = Proportion(0.40)
+    ClimateParameter(VW, time_periods, beta5, tau1, low_gamma2, high_gamma2)
 end
 
 function climate_hot(W,ishail=true)
@@ -157,8 +160,9 @@ function climate_hot(W,ishail=true)
     x5 = 1 
     time_periods = Float64[x0,x1,x3,x4,x5]
     tau1 = 12.0 #free parameter -- should be higher yet under hot and dry conditions
-    gamma2 = Proportion(0.83) #free parameter -- should go down as climate gets worse, should be a function of cheatgrass
-    ClimateParameter(VW, time_periods, beta5, tau1, gamma2)
+    low_gamma2 = Proportion(0.33) 
+    high_gamma2 = Proportion(0.38)
+    ClimateParameter(VW, time_periods, beta5, tau1, low_gamma2, high_gamma2)
 end
 
 function climate_hotdry(W,ishail=true)
@@ -170,8 +174,9 @@ function climate_hotdry(W,ishail=true)
     x5 = 1 
     time_periods = Float64[x0,x1,x3,x4,x5]
     tau1 = 16.0 #free parameter -- should be higher than the other conditions
-    gamma2 = Proportion(0.69) #free parameter -- should go down as climate gets worse, should be a function of cheatgrass
-    ClimateParameter(VW, time_periods, beta5, tau1, gamma2)
+    low_gamma2 = Proportion(0.39) 
+    high_gamma2 = Proportion(0.52)
+    ClimateParameter(VW, time_periods, beta5, tau1, low_gamma2, high_gamma2)
 end
 
 function hail(W,ishail)
@@ -181,12 +186,12 @@ function hail(W,ishail)
     (VW,beta5)
 end
 
-# test the forward Euler solver
-testsolver(100)
-testsolver(250)
-testsolver(500)
-testsolver(750)
-testsolver(1000)
+# # test the forward Euler solver
+# testsolver(100)
+# testsolver(250)
+# testsolver(500)
+# testsolver(750)
+# testsolver(1000)
 
 
 # # numerical stability testing
@@ -206,11 +211,13 @@ testsolver(1000)
 yearly_climates = [(climate_ambient,false), (climate_hot,true), (climate_hotdry,true), (climate_hotdry,false)]
 ICs = Float64[3.3e5,3.3e5,1e6,0.5] # Cn-1 pop, Cn pop, VWn pop, VWn prop infected
 
-println("climate_ambient_nohail, climate_hot_hail, climate_hotdry_hail, climate_hotdry_nohail")
+years = ["climate_ambient_nohail", "climate_hot_hail", "climate_hotdry_hail", "climate_hotdry_nohail"]
 M = multiyear(yearly_climates,ICs)
 c =0
+println("cheatgrass pop, prop yield, prop infected: [old cheatgrass, old vol wheat, wheat, new vol wheat]")
 for m in M
     c+=1
-    println("Year $c: $m")
+    y = years[c]
+    println("Year $c ($y): $m")
 end
 

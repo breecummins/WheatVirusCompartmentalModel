@@ -32,38 +32,38 @@ yield_loss = list(df.loc[:,"yield_loss_pct"])
 cheatgrass_biomass = list(df.loc[:,"bio_cg"])
 climate = df.loc[:,"climt"]
 
-wheat_sm_lowcg = [ (c<100)*w for (c,w) in zip(cheatgrass_biomass,wheat_seedmass) ]
-wheat_sm_highcg = [ (c>=100)*w for (c,w) in zip(cheatgrass_biomass,wheat_seedmass) ]
+wheat_yl_lowcg = [ (c<100)*w for (c,w) in zip(cheatgrass_biomass,yield_loss) ]
+wheat_yl_highcg = [ (c>=100)*w for (c,w) in zip(cheatgrass_biomass,yield_loss) ]
 
-wheat_sm_nowsmv_lowcg = [ (1-v)*(c<100)*w for (v,c,w) in zip(wsmv,cheatgrass_biomass,wheat_seedmass) ]
-wheat_sm_nowsmv_highcg = [ (1-v)*(c>=100)*w for (v,c,w) in zip(wsmv,cheatgrass_biomass,wheat_seedmass) ]
-wheat_sm_wsmv_lowcg = [ v*(c<100)*w for (v,c,w) in zip(wsmv,cheatgrass_biomass,wheat_seedmass) ]
-wheat_sm_wsmv_highcg = [ v*(c>=100)*w for (v,c,w) in zip(wsmv,cheatgrass_biomass,wheat_seedmass) ]
+wheat_yl_nowsmv_lowcg = [ (1-v)*(c<100)*w for (v,c,w) in zip(wsmv,cheatgrass_biomass,yield_loss) ]
+wheat_yl_nowsmv_highcg = [ (1-v)*(c>=100)*w for (v,c,w) in zip(wsmv,cheatgrass_biomass,yield_loss) ]
+wheat_yl_wsmv_lowcg = [ v*(c<100)*w for (v,c,w) in zip(wsmv,cheatgrass_biomass,yield_loss) ]
+wheat_yl_wsmv_highcg = [ v*(c>=100)*w for (v,c,w) in zip(wsmv,cheatgrass_biomass,yield_loss) ]
 
 print("---------------------------------------------------------------")
 print("Avg and std of wheat seedmass with low cheatgrass")
 print("---------------------------------------------------------------")
-split_by_climate(wheat_sm_lowcg)
+split_by_climate(wheat_yl_lowcg)
 print("---------------------------------------------------------------")
-print("Avg and std of wheat seedmass with no virus and low cheat grass")
-print("---------------------------------------------------------------")
-split_by_climate(wheat_sm_nowsmv_lowcg)
-print("---------------------------------------------------------------")
-print("Avg and std of wheat seedmass with virus and low cheat grass")
-print("---------------------------------------------------------------")
-split_by_climate(wheat_sm_wsmv_lowcg)
-print("---------------------------------------------------------------")
+# print("Avg and std of wheat seedmass with no virus and low cheat grass")
+# print("---------------------------------------------------------------")
+# split_by_climate(wheat_sm_nowsmv_lowcg)
+# print("---------------------------------------------------------------")
+# print("Avg and std of wheat seedmass with virus and low cheat grass")
+# print("---------------------------------------------------------------")
+# split_by_climate(wheat_sm_wsmv_lowcg)
+# print("---------------------------------------------------------------")
 print("Avg and std of wheat seedmass with high cheatgrass")
 print("---------------------------------------------------------------")
-split_by_climate(wheat_sm_highcg)
+split_by_climate(wheat_yl_highcg)
 print("---------------------------------------------------------------")
-print("Avg and std of wheat seedmass with no virus and high cheat grass")
-print("---------------------------------------------------------------")
-split_by_climate(wheat_sm_nowsmv_highcg)
-print("---------------------------------------------------------------")
-print("Avg and std of wheat seedmass with virus and high cheat grass")
-print("---------------------------------------------------------------")
-split_by_climate(wheat_sm_wsmv_highcg)
-print("---------------------------------------------------------------")
+# print("Avg and std of wheat seedmass with no virus and high cheat grass")
+# print("---------------------------------------------------------------")
+# split_by_climate(wheat_sm_nowsmv_highcg)
+# print("---------------------------------------------------------------")
+# print("Avg and std of wheat seedmass with virus and high cheat grass")
+# print("---------------------------------------------------------------")
+# split_by_climate(wheat_sm_wsmv_highcg)
+# print("---------------------------------------------------------------")
 
 
