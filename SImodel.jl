@@ -1,3 +1,5 @@
+# using Plots
+
 type SquareMatrix
     matrix::Array{Float64,2}
     dim::Int
@@ -46,7 +48,7 @@ function forwardEuler(A::SquareMatrix,param::Parameter,icv::Array{Float64,1},row
     icv
 end
 
-function testsolver(numsteps=1000,climate=(climate_ambient,nohail))
+function testsolver(numsteps=1000,climate=(climate_ambient,false))
     ICs = Float64[3.3e5,3.3e5,1e6,0.5] # Cn-1 pop, Cn pop, VWn pop, VWn prop infected
     populations = map((x) -> convert(Int,x),ICs[1:3])
     param = setparams(climate,populations)
@@ -90,7 +92,7 @@ function fullyear(param::Parameter,IC_virus::Array{Float64,1},steps_per_time::In
     (V1,V3,V5)
 end
 
-function multiyear(yearly_climates=Array{Tuple{Function,Bool},1}, ICs=Float64[]; steps_per_time=500)
+function multiyear(yearly_climates=Array{Tuple{Function,Bool},1}, ICs=Float64[]; steps_per_time=100)
     yearly_climates = reverse(yearly_climates) # julia pops from the back
     results = []
     while length(yearly_climates) > 0
@@ -208,16 +210,87 @@ end
 #     end
 # end
 
-yearly_climates = [(climate_ambient,false), (climate_hot,true), (climate_hotdry,true), (climate_hotdry,false)]
-ICs = Float64[3.3e5,3.3e5,1e6,0.5] # Cn-1 pop, Cn pop, VWn pop, VWn prop infected
-
-years = ["climate_ambient_nohail", "climate_hot_hail", "climate_hotdry_hail", "climate_hotdry_nohail"]
-M = multiyear(yearly_climates,ICs)
-c =0
-println("cheatgrass pop, prop yield, prop infected: [old cheatgrass, old vol wheat, wheat, new vol wheat]")
-for m in M
-    c+=1
-    y = years[c]
-    println("Year $c ($y): $m")
+function hotdryyears(N,ICs)
+    climates=[]
+    while N>0
+        p=rand()
+        # climate = p<0.1 ? climate_hotdry : ( p<0.2 ? climate_hot : climate_ambient )
+        climate = climate_hotdry
+        append!(climates,[(climate,false)])
+        N-=1
+    end
+    multiyear(climates,ICs)
 end
+
+function ambientyears(N,ICs)
+    climates=[]
+    while N>0
+        p=rand()
+        append!(climates,[(climate_ambient,false)])
+        N-=1
+    end
+    multiyear(climates,ICs)
+end
+
+function highhailyears(N,ICs)
+    climates=[]
+    while N>0
+        p=rand()
+        append!(climates,[(climate_ambient,true)])
+        N-=1
+    end
+    multiyear(climates,ICs)
+end
+
+ICs = Float64[3.3e5,3.3e5,1e6,0.5] # Cn-1 pop, Cn pop, VWn pop, VWn prop infected
+N = 5 # how many years to forecast
+M = 1 # how many trials to do
+println((N,M))
+
+function getmultiyearresults(whichclimate, ICs, N, M)
+    Y = Array{Float64,2}(M,N)
+    V = Array{Float64,2}(M,N)
+
+    for k in range(1,M)
+        results = whichclimate(N,ICs)
+        for (j,r) in zip(range(1,N),results)
+            Y[k,j] = r[2]
+            V[k,j] = r[3][3]
+        end
+    end
+
+    (mean(Y,1),std(Y,1),mean(V,1),std(V,1)) 
+end
+
+println("ambient years")
+R = getmultiyearresults(ambientyears, ICs, N, M)
+
+for l in R
+    println(l)
+end
+
+println("hot dry years")
+R = getmultiyearresults(hotdryyears, ICs, N, M)
+
+for l in R
+    println(l)
+end
+
+println("high hail years")
+R = getmultiyearresults(highhailyears, ICs, N, M)
+
+for l in R
+    println(l)
+end
+
+# yearly_climates = [(climate_ambient,false), (climate_hot,true), (climate_hotdry,true), (climate_hotdry,false)]
+# years = ["climate_ambient_nohail", "climate_hot_hail", "climate_hotdry_hail", "climate_hotdry_nohail"]
+# M = multiyear(yearly_climates,ICs)
+# c =0
+# println("cheatgrass pop, prop yield, prop infected: [old cheatgrass, old vol wheat, wheat, new vol wheat]")
+# for m in M
+#     c+=1
+#     y = years[c]
+#     println("Year $c ($y): $m")
+# end
 
