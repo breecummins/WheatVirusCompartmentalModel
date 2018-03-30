@@ -28,6 +28,7 @@ type Parameter
     Cnminus1::Int
     tau2::Float64
     tau3::Proportion
+    K::Int
     gamma11::Proportion
     gamma13::Proportion
 end
@@ -110,7 +111,10 @@ function multiyear(yearly_climates=Array{Tuple{Function,Bool},1}, ICs=Float64[];
 end
 
 function wheat_yield(param::Parameter,V1::Array{Float64,1},V3::Array{Float64,1},V5::Array{Float64,1})
-    Cnplus1 = convert(Int,round(param.tau3.prop*( param.climate.tau1*param.population[1] + param.tau2*param.Cnminus1 )))
+    # The minimum value 100 prevents there from being negative populations
+    R = param.tau3.prop*param.climate.tau1*param.population[1] + param.tau2*max(param.Cnminus1,1000)
+    L = (param.K - param.population[1])/param.K
+    Cnplus1 = max(convert(Int,round(param.population[1] + R*L)),1000)
     gamma2 = param.population[1] <= 5e5 ? param.climate.low_gamma2.prop : param.climate.high_gamma2.prop #arbitrary threshold
     Ynplus1 = (1-gamma2)*( param.gamma11.prop*V1[3] + param.gamma13.prop*(V3[3] - V1[3]) + 1 - V3[3] ) 
     (Cnplus1,Ynplus1)
@@ -134,11 +138,12 @@ function setparams(climate::Tuple{Function,Bool},ICs::Array{Int,1})
                          beta3.prop beta4.prop beta4.prop 0.0;
                          0.0        beta4.prop beta4.prop 0.0;    
                          ])
-    tau2 = 3.0 # can exceed 1 (cheatgrass plants per plant from previous year)
+    tau2 = 1.0 # can exceed 1 (cheatgrass plants per plant from previous year)
     tau3 = Proportion(0.1)  # free parameter (competition effect on cheatgrass from wheat)
+    K = convert(Int,round(0.2*W)) # carrying capacity of cheatgrass (assume farmer intervention)
     gamma11 = Proportion(0.7) # wheat yield given fall infection
     gamma13 = Proportion(0.85) # wheat yield given spring infection
-    Parameter(pop,beta,climate_parameter,Cnminus1,tau2,tau3,gamma11,gamma13)
+    Parameter(pop,beta,climate_parameter,Cnminus1,tau2,tau3,K,gamma11,gamma13)
 end
 
 function climate_ambient(W,ishail=true)
@@ -149,7 +154,7 @@ function climate_ambient(W,ishail=true)
     x4 = 3 
     x5 = 1 
     time_periods = Float64[x0,x1,x3,x4,x5]
-    tau1 = 6.0 #free parameter -- should be higher under hot conditions and higher yet under hot and dry conditions
+    tau1 = 3.0 #free parameter -- should be higher under hot conditions and higher yet under hot and dry conditions
     low_gamma2 = Proportion(0.34) 
     high_gamma2 = Proportion(0.40)
     ClimateParameter(VW, time_periods, beta5, tau1, low_gamma2, high_gamma2)
@@ -163,7 +168,7 @@ function climate_hot(W,ishail=true)
     x4 = 3 
     x5 = 1 
     time_periods = Float64[x0,x1,x3,x4,x5]
-    tau1 = 12.0 #free parameter -- should be higher yet under hot and dry conditions
+    tau1 = 6.0 #free parameter -- should be higher yet under hot and dry conditions
     low_gamma2 = Proportion(0.33) 
     high_gamma2 = Proportion(0.38)
     ClimateParameter(VW, time_periods, beta5, tau1, low_gamma2, high_gamma2)
@@ -177,7 +182,7 @@ function climate_hotdry(W,ishail=true)
     x4 = 3 
     x5 = 1 
     time_periods = Float64[x0,x1,x3,x4,x5]
-    tau1 = 16.0 #free parameter -- should be higher than the other conditions
+    tau1 = 9.0 #free parameter -- should be higher than the other conditions
     low_gamma2 = Proportion(0.39) 
     high_gamma2 = Proportion(0.52)
     ClimateParameter(VW, time_periods, beta5, tau1, low_gamma2, high_gamma2)
@@ -239,7 +244,7 @@ function highhail_hotdryyears(N,ICs)
     multiyear(climates,ICs)
 end
 
-ICs = Float64[3.3e5,3.3e5,1e6,0.5] # Cn-1 pop, Cn pop, VWn pop, VWn prop infected
+ICs = Float64[3.3e5,1e5,1e6,0.5] # Cn-1 pop, Cn pop, VWn pop, VWn prop infected; C pops need to be near or below carrying capacity
 N = 10 # how many years to forecast
 M = 1 # how many trials to do
 println((N,M))
