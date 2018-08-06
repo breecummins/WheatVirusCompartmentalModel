@@ -124,12 +124,12 @@ function setparams(climate::Tuple{Function,Bool},ICs::Array{Int,1})
     # ICs=Int[Cnminus1,Cn,VWpop]
     W = convert(Int,2.25e6) # 225 plants/m^2 in one hectare field
     Cnminus1 = ICs[1]
-    climate_parameter = climate[1](W,climate[2])
-    pop = Int[ICs[2], ICs[3], W, climate_parameter.VWpop]
-    beta1=Proportion(0.00) # cheatgrass to cheatgrass (see Tim's email 10/25)
+    beta1=Proportion(0.05) # cheatgrass to cheatgrass (see Tim's email 10/25)
     beta2=Proportion(0.25) # wheat/volunteer wheat to cheatgrass
-    beta3=Proportion(0.3) #cheatgrass to wheat/volunteer wheat
-    beta4=Proportion(0.5) # wheat to wheat/volunteer wheat
+    beta3=Proportion(0.25) #cheatgrass to wheat/volunteer wheat
+    beta4=Proportion(0.25) # wheat to wheat/volunteer wheat
+    climate_parameter = climate[1](W,beta4,climate[2])
+    pop = Int[ICs[2], ICs[3], W, climate_parameter.VWpop]
     beta5= climate_parameter.beta5 # volunteer wheat to volunteer wheat
     # matrix order = [cheatgrass, volunteer wheat, wheat, new volunteer wheat]
     beta = SquareMatrix(Float64[
@@ -138,7 +138,7 @@ function setparams(climate::Tuple{Function,Bool},ICs::Array{Int,1})
                          beta3.prop beta4.prop beta4.prop 0.0;
                          0.0        beta4.prop beta4.prop 0.0;    
                          ])
-    tau2 = 1.0 # can exceed 1 (cheatgrass plants per plant from previous year)
+    tau2 = 3.0 # can exceed 1 (cheatgrass plants per plant from previous year)
     tau3 = Proportion(0.1)  # free parameter (competition effect on cheatgrass from wheat)
     K = convert(Int,round(0.2*W)) # carrying capacity of cheatgrass (assume farmer intervention)
     gamma11 = Proportion(0.7) # wheat yield given fall infection
@@ -146,8 +146,8 @@ function setparams(climate::Tuple{Function,Bool},ICs::Array{Int,1})
     Parameter(pop,beta,climate_parameter,Cnminus1,tau2,tau3,K,gamma11,gamma13)
 end
 
-function climate_ambient(W,ishail=true)
-    (VW,beta5) = hail(W,ishail)
+function climate_ambient(W,beta4,ishail=true)
+    (VW,beta5) = hail(W,beta4,ishail)
     x0 = 3 # 3 time units = 6 weeks; these should change for hot and hot and dry climate scenarios, but I don't know how yet
     x1 = 2.5 
     x3 = 6
@@ -160,8 +160,8 @@ function climate_ambient(W,ishail=true)
     ClimateParameter(VW, time_periods, beta5, tau1, low_gamma2, high_gamma2)
 end
 
-function climate_hot(W,ishail=true)
-    (VW,beta5) = hail(W,ishail)
+function climate_hot(W,beta4,ishail=true)
+    (VW,beta5) = hail(W,beta4,ishail)
     x0 = 3 # 3 time units = 6 weeks; these should change for hot and hot and dry climate scenarios, but I don't know how yet
     x1 = 2.5 
     x3 = 6
@@ -174,8 +174,8 @@ function climate_hot(W,ishail=true)
     ClimateParameter(VW, time_periods, beta5, tau1, low_gamma2, high_gamma2)
 end
 
-function climate_hotdry(W,ishail=true)
-    (VW,beta5) = hail(W,ishail)
+function climate_hotdry(W,beta4,ishail=true)
+    (VW,beta5) = hail(W,beta4,ishail)
     x0 = 3 # 3 time units = 6 weeks; these should change for hot and hot and dry climate scenarios, but I don't know how yet
     x1 = 2.5 
     x3 = 6
@@ -188,10 +188,10 @@ function climate_hotdry(W,ishail=true)
     ClimateParameter(VW, time_periods, beta5, tau1, low_gamma2, high_gamma2)
 end
 
-function hail(W,ishail)
+function hail(W,beta4,ishail)
     # 100 plants/m^2 in one hectare field for hail, 10 for no hail
     VW = ishail ? convert(Int,1e6) : convert(Int,1e5)
-    beta5 = Proportion(0.5 * VW / W) 
+    beta5 = Proportion(beta4 * VW / W) 
     (VW,beta5)
 end
 
