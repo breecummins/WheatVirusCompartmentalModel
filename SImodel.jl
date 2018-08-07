@@ -112,9 +112,13 @@ end
 
 function wheat_yield(param::Parameter,V1::Array{Float64,1},V3::Array{Float64,1},V5::Array{Float64,1})
     # The minimum value 100 prevents there from being negative populations
-    R = param.tau3.prop*param.climate.tau1*param.population[1] + param.tau2*max(param.Cnminus1,1000)
-    L = (param.K - param.population[1])/param.K
-    Cnplus1 = max(convert(Int,round(param.population[1] + R*L)),1000)
+    r = param.tau3.prop*(param.climate.tau1*param.population[1] + param.tau2*param.Cnminus1)
+    if param.population[1] != param.K 
+        c = param.population[1] / (param.K - param.population[1])
+        Cnplus1 = convert(Int,round(c*param.K / (exp(-r) + c) ))
+    else
+        Cnplus1 = param.K
+    end
     gamma2 = param.population[1] <= 5e5 ? param.climate.low_gamma2.prop : param.climate.high_gamma2.prop #arbitrary threshold
     Ynplus1 = (1-gamma2)*( param.gamma11.prop*V1[3] + param.gamma13.prop*(V3[3] - V1[3]) + 1 - V3[3] ) 
     (Cnplus1,Ynplus1)
@@ -124,7 +128,7 @@ function setparams(climate::Tuple{Function,Bool},ICs::Array{Int,1})
     # ICs=Int[Cnminus1,Cn,VWpop]
     W = convert(Int,2.25e6) # 225 plants/m^2 in one hectare field
     Cnminus1 = ICs[1]
-    beta1=Proportion(0.05) # cheatgrass to cheatgrass (see Tim's email 10/25)
+    beta1=Proportion(0.05) # cheatgrass to cheatgrass 
     beta2=Proportion(0.25) # wheat/volunteer wheat to cheatgrass
     beta3=Proportion(0.25) #cheatgrass to wheat/volunteer wheat
     beta4=Proportion(0.25) # wheat to wheat/volunteer wheat
@@ -184,14 +188,14 @@ function climate_hotdry(W,beta4,ishail=true)
     time_periods = Float64[x0,x1,x3,x4,x5]
     tau1 = 9.0 #free parameter -- should be higher than the other conditions
     low_gamma2 = Proportion(0.39) 
-    high_gamma2 = Proportion(0.52)
+    high_gamma2 = Proportion(0.52) 
     ClimateParameter(VW, time_periods, beta5, tau1, low_gamma2, high_gamma2)
 end
 
 function hail(W,beta4,ishail)
     # 100 plants/m^2 in one hectare field for hail, 10 for no hail
     VW = ishail ? convert(Int,1e6) : convert(Int,1e5)
-    beta5 = Proportion(beta4 * VW / W) 
+    beta5 = Proportion(beta4.prop * VW / W) 
     (VW,beta5)
 end
 
@@ -244,7 +248,7 @@ function highhail_hotdryyears(N,ICs)
     multiyear(climates,ICs)
 end
 
-ICs = Float64[3.3e5,1e5,1e6,0.5] # Cn-1 pop, Cn pop, VWn pop, VWn prop infected; C pops need to be near or below carrying capacity
+ICs = Float64[3.3e5,4.8e5,1e6,0.25] # Cn-1 pop, Cn pop, VWn pop, VWn prop infected
 N = 10 # how many years to forecast
 M = 1 # how many trials to do
 println((N,M))
