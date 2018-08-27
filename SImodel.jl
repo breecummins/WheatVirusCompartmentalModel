@@ -49,20 +49,20 @@ function forwardEuler(A::SquareMatrix,param::Parameter,icv::Array{Float64,1},row
     icv
 end
 
-function testsolver(numsteps=1000,climate=(climate_ambient,false))
-    ICs = Float64[3.3e5,3.3e5,1e6,0.5] # Cn-1 pop, Cn pop, VWn pop, VWn prop infected
-    populations = map((x) -> convert(Int,x),ICs[1:3])
-    param = setparams(climate,populations)
-    IC_virus = [0, ICs[4], 0, 0]
-    A = SquareMatrix((param.beta.matrix) .* (param.population'))
-    x0 = param.climate.time_periods[1]
-    beta = param.beta.matrix[2,2]
-    C = (1 - IC_virus[2]) / IC_virus[2]
-    intVW = exp(beta * x0)  / (exp(beta * x0) + C)
-    rows0 = [2]
-    V0 = forwardEuler(A,param,IC_virus,rows0,x0,convert(Int,x0*numsteps))
-    println("Exact soln, FE with $numsteps steps, Difference: \n$intVW, $(V0[2]), $(abs(intVW - V0[2]))")
-end
+# function testsolver(numsteps=1000,climate=(climate_ambient,false))
+#     ICs = Float64[3.3e5,3.3e5,1e6,0.5] # Cn-1 pop, Cn pop, VWn pop, VWn prop infected
+#     populations = map((x) -> convert(Int,x),ICs[1:3])
+#     param = setparams(climate,populations)
+#     IC_virus = [0, ICs[4], 0, 0]
+#     A = SquareMatrix((param.beta.matrix) .* (param.population'))
+#     x0 = param.climate.time_periods[1]
+#     beta = param.beta.matrix[2,2]
+#     C = (1 - IC_virus[2]) / IC_virus[2]
+#     intVW = exp(beta * x0)  / (exp(beta * x0) + C)
+#     rows0 = [2]
+#     V0 = forwardEuler(A,param,IC_virus,rows0,x0,convert(Int,x0*numsteps))
+#     println("Exact soln, FE with $numsteps steps, Difference: \n$intVW, $(V0[2]), $(abs(intVW - V0[2]))")
+# end
 
 
 function fullyear(param::Parameter,IC_virus::Array{Float64,1},steps_per_time::Int)
@@ -110,19 +110,25 @@ function multiyear(yearly_climates=Array{Tuple{Function,Bool},1}, ICs=Float64[];
     results
 end
 
+# function wheat_yield(param::Parameter,V1::Array{Float64,1},V3::Array{Float64,1},V5::Array{Float64,1})
+#     # The minimum value 100 prevents there from being negative populations
+#     r = param.tau3.prop*(param.climate.tau1*param.population[1] + param.tau2*param.Cnminus1)
+#     if param.population[1] != param.K 
+#         c = param.population[1] / (param.K - param.population[1])
+#         Cnplus1 = convert(Int,round(c*param.K / (exp(-r) + c) ))
+#     else
+#         Cnplus1 = param.K
+#     end
+#     gamma2 = param.population[1] <= 5e5 ? param.climate.low_gamma2.prop : param.climate.high_gamma2.prop #arbitrary threshold
+#     Ynplus1 = (1-gamma2)*( param.gamma11.prop*V1[3] + param.gamma13.prop*(V3[3] - V1[3]) + 1 - V3[3] ) 
+#     (Cnplus1,Ynplus1)
+# end
+
 function wheat_yield(param::Parameter,V1::Array{Float64,1},V3::Array{Float64,1},V5::Array{Float64,1})
-    # The minimum value 100 prevents there from being negative populations
-    r = param.tau3.prop*(param.climate.tau1*param.population[1] + param.tau2*param.Cnminus1)
-    if param.population[1] != param.K 
-        c = param.population[1] / (param.K - param.population[1])
-        Cnplus1 = convert(Int,round(c*param.K / (exp(-r) + c) ))
-    else
-        Cnplus1 = param.K
-    end
-    gamma2 = param.population[1] <= 5e5 ? param.climate.low_gamma2.prop : param.climate.high_gamma2.prop #arbitrary threshold
     Ynplus1 = (1-gamma2)*( param.gamma11.prop*V1[3] + param.gamma13.prop*(V3[3] - V1[3]) + 1 - V3[3] ) 
     (Cnplus1,Ynplus1)
 end
+
 
 function setparams(climate::Tuple{Function,Bool},ICs::Array{Int,1})
     # ICs=Int[Cnminus1,Cn,VWpop]
@@ -148,6 +154,21 @@ function setparams(climate::Tuple{Function,Bool},ICs::Array{Int,1})
     gamma11 = Proportion(0.7) # wheat yield given fall infection
     gamma13 = Proportion(0.85) # wheat yield given spring infection
     Parameter(pop,beta,climate_parameter,Cnminus1,tau2,tau3,K,gamma11,gamma13)
+end
+
+function setparams(climate::Tuple{Function,Bool},W::Int,C::Int,VW::Int)
+    climate_parameter = climate[1](W,beta4,climate[2])
+    pop = Int[VW, W, climate_parameter.VWpop]
+    beta1=Proportion(0.005) # cheatgrass to cheatgrass 
+    beta2=Proportion(W,C) # wheat/volunteer wheat to cheatgrass
+    beta3=beta(C,W) #cheatgrass to wheat/volunteer wheat
+    beta4=beta(W,W) # wheat to wheat
+    beta4=beta(W,VW) # wheat to volunteer wheat
+    beta5=beta(climate_parameter.VWpop,climate_parameter.VWpop) # volunteer wheat to volunteer wheat
+end
+
+function beta(source::Int,target::Int)
+    0.5*e^(1.0/float(source) + 1.0/float(target))
 end
 
 function climate_ambient(W,beta4,ishail=true)
