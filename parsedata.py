@@ -4,320 +4,85 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 df = pd.read_csv(os.path.expanduser("PF_All_Yield_Bio_Den_Cov_Ht.csv"))
+
 df_am_2015_bi = df.loc[(df['year']==2015) & (df['climt']=='am') & (df['spp']=='wh') & (df['compt']=='bi')]
-df_am_2015_mo = df.loc[(df['year']==2015) & (df['climt']=='am') & (df['spp']=='wh') & (df['compt']=='mo')]
 df_ot_2015_bi = df.loc[(df['year']==2015) & (df['climt']=='ot') & (df['spp']=='wh') & (df['compt']=='bi')]
-df_ot_2015_mo = df.loc[(df['year']==2015) & (df['climt']=='ot') & (df['spp']=='wh') & (df['compt']=='mo')]
 df_ro_2015_bi = df.loc[(df['year']==2015) & (df['climt']=='ro') & (df['spp']=='wh') & (df['compt']=='bi')]
-df_ro_2015_mo = df.loc[(df['year']==2015) & (df['climt']=='ro') & (df['spp']=='wh') & (df['compt']=='mo')]
 df_am_2015_bi_cg = df.loc[(df['year']==2015) & (df['climt']=='am') & (df['spp']=='cg') & (df['compt']=='bi')]
 df_ot_2015_bi_cg = df.loc[(df['year']==2015) & (df['climt']=='ot') & (df['spp']=='cg') & (df['compt']=='bi')]
 df_ro_2015_bi_cg = df.loc[(df['year']==2015) & (df['climt']=='ro') & (df['spp']=='cg') & (df['compt']=='bi')]
 
 
-# plt.figure()
-# plt.plot(np.asarray(df_am_2015_bi_cg["bio.cg.g/m2"])/np.asarray(df_am_2015_bi["bio.wh.g/m2"]),np.asarray(df_am_2015_bi["yield.wh.g/m2"])/np.asarray(df_am_2015_bi["bio.wh.g/m2"]),linestyle="",marker="o")
-# plt.title("2015 Ambient")
-# plt.xlabel("relative cheatgrass")
-# plt.ylabel("relative yield")
-# plt.show()
-#
-# plt.figure()
-# plt.plot(np.asarray(df_ot_2015_bi_cg["bio.cg.g/m2"])/np.asarray(df_ot_2015_bi["bio.wh.g/m2"]),np.asarray(df_ot_2015_bi["yield.wh.g/m2"])/np.asarray(df_ot_2015_bi["bio.wh.g/m2"]),linestyle="",marker="o")
-# plt.title("2015 Hot (ot)")
-# plt.xlabel("relative cheatgrass")
-# plt.ylabel("relative yield")
-# plt.show()
-#
-# plt.figure()
-# plt.plot(np.asarray(df_ro_2015_bi_cg["bio.cg.g/m2"])/np.asarray(df_ro_2015_bi["bio.wh.g/m2"]),np.asarray(df_ro_2015_bi["yield.wh.g/m2"])/np.asarray(df_ro_2015_bi["bio.wh.g/m2"]),linestyle="",marker="o")
-# plt.title("2015 Hot/dry (ro)")
-# plt.xlabel("relative cheatgrass")
-# plt.ylabel("relative yield")
-# plt.show()
-#
-#
-#
-# # for z in zip(df_am_2015["yield.wh.g/m2"],df_am_2015["pcntcov.wh"],df_am_2015["bio.wh.g/m2"]):
-# #     print(z)
-#
-# # plt.scatter(df_am_2015_bi["bio.wh.g/m2"],df_am_2015_bi["yield.wh.g/m2"], color="blue", label="biculture")
-# # plt.hold('on')
-# # plt.scatter(df_am_2015_mo["bio.wh.g/m2"],df_am_2015_mo["yield.wh.g/m2"], color="red", label="monoculture")
-# # plt.legend()
-# # plt.show()
-#
-# # fig = plt.figure()
-# # plt.title("2015")
-# # plt.ylim([0,0.5])
-# # plt.plot([1]*len(df_am_2015_bi["yield.wh.g/m2"]),df_am_2015_bi["yield.wh.g/m2"]/df_am_2015_bi["bio.wh.g/m2"], linestyle="None",marker="o",color="blue", label="am bi")
-# # plt.hold('on')
-# # plt.plot([2]*len(df_am_2015_mo["yield.wh.g/m2"]),df_am_2015_mo["yield.wh.g/m2"]/df_am_2015_mo["bio.wh.g/m2"], linestyle="None",marker="o",color="red", label="am mono")
-# # plt.plot([3]*len(df_ot_2015_bi["yield.wh.g/m2"]),df_ot_2015_bi["yield.wh.g/m2"]/df_ot_2015_bi["bio.wh.g/m2"], linestyle="None",marker="o",color="green", label="ot bi")
-# # plt.hold('on')
-# # plt.plot([4]*len(df_ot_2015_mo["yield.wh.g/m2"]),df_ot_2015_mo["yield.wh.g/m2"]/df_ot_2015_mo["bio.wh.g/m2"], linestyle="None",marker="o",color="black", label="ot mono")
-# # plt.plot([5]*len(df_ro_2015_bi["yield.wh.g/m2"]),df_ro_2015_bi["yield.wh.g/m2"]/df_ro_2015_bi["bio.wh.g/m2"], linestyle="None",marker="o",color="cyan", label="ro bi")
-# # plt.hold('on')
-# # plt.plot([6]*len(df_ro_2015_mo["yield.wh.g/m2"]),df_ro_2015_mo["yield.wh.g/m2"]/df_ro_2015_mo["bio.wh.g/m2"], linestyle="None",marker="o",color="magenta", label="ro mono")
-# # lgd = plt.legend(bbox_to_anchor=(1.0, 1.0))
-# # fig.savefig('PF2015.pdf', bbox_extra_artists=(lgd,), bbox_inches='tight')
-
 df_am_2016_bi = df.loc[(df['year']==2016) & (df['climt']=='am') & (df['spp']=='wh') & (df['compt']=='bi')]
 df_am_2016_bi_cg = df.loc[(df['year']==2016) & (df['climt']=='am') & (df['spp']=='cg') & (df['compt']=='bi')]
-df_am_2016_mo = df.loc[(df['year']==2016) & (df['climt']=='am') & (df['spp']=='wh') & (df['compt']=='mo')]
 df_am_2017_bi = df.loc[(df['year']==2017) & (df['climt']=='amb') & (df['spp']=='bi') & (df['compt']=='bi') ]
-df_am_2017_mo = df.loc[(df['year']==2017) & (df['climt']=='amb') & (df['spp']=='wh') & (df['compt']=='mo')]
 df_ot_2016_bi = df.loc[(df['year']==2016) & (df['climt']=='ot') & (df['spp']=='wh') & (df['compt']=='bi')]
 df_ot_2016_bi_cg = df.loc[(df['year']==2016) & (df['climt']=='ot') & (df['spp']=='cg') & (df['compt']=='bi')]
-df_ot_2016_mo = df.loc[(df['year']==2016) & (df['climt']=='ot') & (df['spp']=='wh') & (df['compt']=='mo')]
 df_ot_2017_bi = df.loc[(df['year']==2017) & (df['climt']=='otc') & (df['spp']=='bi') & (df['compt']=='bi')]
-df_ot_2017_mo = df.loc[(df['year']==2017) & (df['climt']=='otc') & (df['spp']=='wh') & (df['compt']=='mo')]
 df_ro_2016_bi = df.loc[(df['year']==2016) & (df['climt']=='ro') & (df['spp']=='wh') & (df['compt']=='bi')]
 df_ro_2016_bi_cg = df.loc[(df['year']==2016) & (df['climt']=='ro') & (df['spp']=='cg') & (df['compt']=='bi')]
-df_ro_2016_mo = df.loc[(df['year']==2016) & (df['climt']=='ro') & (df['spp']=='wh') & (df['compt']=='mo')]
 df_ro_2017_bi = df.loc[(df['year']==2017) & (df['climt']=='ros') & (df['spp']=='bi') & (df['compt']=='bi')]
-df_ro_2017_mo = df.loc[(df['year']==2017) & (df['climt']=='ros') & (df['spp']=='wh') & (df['compt']=='mo')]
 
 df_am_2017_bi = df_am_2017_bi[(df_am_2017_bi["bio.wh.g/m2"] != 0) & df_am_2017_bi["bio.cg.g/m2"] != 0]
 df_ot_2017_bi = df_ot_2017_bi[(df_ot_2017_bi["bio.wh.g/m2"] != 0) & df_ot_2017_bi["bio.cg.g/m2"] != 0]
 df_ro_2017_bi = df_ro_2017_bi[(df_ro_2017_bi["bio.wh.g/m2"] != 0) & df_ro_2017_bi["bio.cg.g/m2"] != 0]
 
-# plt.figure()
-# plt.plot(np.asarray(df_am_2016_bi_cg["bio.cg.g/m2"])/np.asarray(df_am_2016_bi["bio.wh.g/m2"]),np.asarray(df_am_2016_bi["yield.wh.g/m2"])/np.asarray(df_am_2016_bi["bio.wh.g/m2"]),linestyle="",marker="o")
-# plt.title("2016 Ambient")
-# plt.xlabel("relative cheatgrass")
-# plt.ylabel("relative yield")
-# plt.show()
-#
-# plt.figure()
-# plt.plot(np.asarray(df_ot_2016_bi_cg["bio.cg.g/m2"])/np.asarray(df_ot_2016_bi["bio.wh.g/m2"]),np.asarray(df_ot_2016_bi["yield.wh.g/m2"])/np.asarray(df_ot_2016_bi["bio.wh.g/m2"]),linestyle="",marker="o")
-# plt.title("2016 Hot (ot)")
-# plt.xlabel("relative cheatgrass")
-# plt.ylabel("relative yield")
-# plt.show()
-#
-# plt.figure()
-# plt.plot(np.asarray(df_ro_2016_bi_cg["bio.cg.g/m2"])/np.asarray(df_ro_2016_bi["bio.wh.g/m2"]),np.asarray(df_ro_2016_bi["yield.wh.g/m2"])/np.asarray(df_ro_2016_bi["bio.wh.g/m2"]),linestyle="",marker="o")
-# plt.title("2016 Hot/dry (ro)")
-# plt.xlabel("relative cheatgrass")
-# plt.ylabel("relative yield")
-# plt.show()
-#
-#
-#
-# # fig = plt.figure()
-# # plt.title("2016")
-# # plt.ylim([0,0.5])
-# # plt.plot([1]*len(df_am_2016_bi["yield.wh.g/m2"]),df_am_2016_bi["yield.wh.g/m2"]/df_am_2016_bi["bio.wh.g/m2"], linestyle="None",marker="o",color="blue", label="am bi")
-# # plt.hold('on')
-# # plt.plot([2]*len(df_am_2016_mo["yield.wh.g/m2"]),df_am_2016_mo["yield.wh.g/m2"]/df_am_2016_mo["bio.wh.g/m2"], linestyle="None",marker="o",color="red", label="am mono")
-# # plt.plot([3]*len(df_ot_2016_bi["yield.wh.g/m2"]),df_ot_2016_bi["yield.wh.g/m2"]/df_ot_2016_bi["bio.wh.g/m2"], linestyle="None",marker="o",color="green", label="ot bi")
-# # plt.hold('on')
-# # plt.plot([4]*len(df_ot_2016_mo["yield.wh.g/m2"]),df_ot_2016_mo["yield.wh.g/m2"]/df_ot_2016_mo["bio.wh.g/m2"], linestyle="None",marker="o",color="black", label="ot mono")
-# # plt.plot([5]*len(df_ro_2016_bi["yield.wh.g/m2"]),df_ro_2016_bi["yield.wh.g/m2"]/df_ro_2016_bi["bio.wh.g/m2"], linestyle="None",marker="o",color="cyan", label="ro bi")
-# # plt.hold('on')
-# # plt.plot([6]*len(df_ro_2016_mo["yield.wh.g/m2"]),df_ro_2016_mo["yield.wh.g/m2"]/df_ro_2016_mo["bio.wh.g/m2"], linestyle="None",marker="o",color="magenta", label="ro mono")
-# # lgd = plt.legend(bbox_to_anchor=(1.0, 1.0))
-# # fig.savefig('PF2016.pdf', bbox_extra_artists=(lgd,), bbox_inches='tight')
-#
-# # fig = plt.figure()
-# # plt.title("2017")
-# # plt.ylim([0,0.5])
-# # plt.plot([1]*len(df_am_2017_bi["yield.wh.g/m2"]),df_am_2017_bi["yield.wh.g/m2"]/df_am_2017_bi["bio.wh.g/m2"], linestyle="None",marker="o",color="blue", label="am bi")
-# # plt.hold('on')
-# # plt.plot([2]*len(df_am_2017_mo["yield.wh.g/m2"]),df_am_2017_mo["yield.wh.g/m2"]/df_am_2017_mo["bio.wh.g/m2"], linestyle="None",marker="o",color="red", label="am mono")
-# # plt.plot([3]*len(df_ot_2017_bi["yield.wh.g/m2"]),df_ot_2017_bi["yield.wh.g/m2"]/df_ot_2017_bi["bio.wh.g/m2"], linestyle="None",marker="o",color="green", label="ot bi")
-# # plt.hold('on')
-# # plt.plot([4]*len(df_ot_2017_mo["yield.wh.g/m2"]),df_ot_2017_mo["yield.wh.g/m2"]/df_ot_2017_mo["bio.wh.g/m2"], linestyle="None",marker="o",color="black", label="ot mono")
-# # plt.plot([5]*len(df_ro_2017_bi["yield.wh.g/m2"]),df_ro_2017_bi["yield.wh.g/m2"]/df_ro_2017_bi["bio.wh.g/m2"], linestyle="None",marker="o",color="cyan", label="ro bi")
-# # plt.hold('on')
-# # plt.plot([6]*len(df_ro_2017_mo["yield.wh.g/m2"]),df_ro_2017_mo["yield.wh.g/m2"]/df_ro_2017_mo["bio.wh.g/m2"], linestyle="None",marker="o",color="magenta", label="ro mono")
-# # lgd = plt.legend(bbox_to_anchor=(1.0, 1.0))
-# # fig.savefig('PF2017.pdf', bbox_extra_artists=(lgd,), bbox_inches='tight')
-#
-# # plt.figure()
-# # plt.hold('on')
-# # plt.title('2015')
-# # plt.scatter(range(len(df_am_2015)),df_am_2015["yield.wh.g/m2"], color="red",label="am")
-# # plt.scatt# plt.figure()
-# # plt.hold('on')
-# # plt.title('2015')
-# # plt.scatter(range(len(df_am_2015)),df_am_2015["yield.wh.g/m2"], color="red",label="am")
-# # plt.scatter(range(len(df_am_2015)),df_ot_2015["yield.wh.g/m2"], color="blue",label="ot")
-# # plt.scatter(range(len(df_am_2015)),df_ro_2015["yield.wh.g/m2"], color="black",label="ro")
-# # plt.legend()
-# # plt.show()
-# #
-# # plt.figure()
-# # plt.hold('on')
-# # plt.title('2016')
-# # plt.scatter(range(len(df_am_2016)),df_am_2016["yield.wh.g/m2"], color="red",label="am")
-# # plt.scatter(range(len(df_am_2016)),df_ot_2016["yield.wh.g/m2"], color="blue",label="ot")
-# # plt.scatter(range(len(df_am_2016)),df_ro_2016["yield.wh.g/m2"], color="black",label="ro")
-# # plt.legend()
-# # plt.show()
-#
-# # plt.figure()
-# # plt.hold('on')
-# # plt.title('2017')
-# # plt.scatter(df_amb_2017["bio.wh.g/m2"],df_amb_2017["yield.wh.g/m2"], color="red",label="am")
-# # plt.scatter(df_otc_2017["bio.wh.g/m2"],df_otc_2017["yield.wh.g/m2"], color="blue",label="ot")
-# # plt.scatter(df_ros_2017["bio.wh.g/m2"],df_ros_2017["yield.wh.g/m2"], color="black",label="ro")
-# # plt.legend()
-# # plt.show()
-#
-#
-# # print("Average relative cheatgrass in biculture under ambient conditions in 2017: ")
-# # print(sum(df_am_2017_bi["bio.cg.g/m2"]/df_am_2017_bi["bio.wh.g/m2"])/len(df_am_2017_bi["bio.cg.g/m2"]))
-# #
-# # print("Average relative yield in biculture under ambient conditions in 2017: ")
-# # print(sum(df_am_2017_bi["yield.wh.g/m2"]/df_am_2017_bi["bio.wh.g/m2"])/len(df_am_2017_bi["yield.wh.g/m2"]))
-# #
-# # print("Average relative yield in monoculture under ambient conditions in 2017: ")
-# # print(sum(df_am_2017_mo["yield.wh.g/m2"]/df_am_2017_mo["bio.wh.g/m2"])/len(df_am_2017_mo["yield.wh.g/m2"]))
-# #
-# # print("Average relative cheatgrass in biculture under ot conditions in 2017: ")
-# # print(sum(df_ot_2017_bi["bio.cg.g/m2"]/df_ot_2017_bi["bio.wh.g/m2"])/len(df_ot_2017_bi["bio.cg.g/m2"]))
-# #
-# # print("Average relative yield in biculture under ot conditions in 2017: ")
-# # print(sum(df_ot_2017_bi["yield.wh.g/m2"]/df_ot_2017_bi["bio.wh.g/m2"])/len(df_ot_2017_bi["yield.wh.g/m2"]))
-# #
-# # print("Average relative yield in monoculture under ot conditions in 2017: ")
-# # print(sum(df_ot_2017_mo["yield.wh.g/m2"]/df_ot_2017_mo["bio.wh.g/m2"])/len(df_ot_2017_mo["yield.wh.g/m2"]))
-# #
-# # print("Average relative cheatgrass in biculture under ro conditions in 2017: ")
-# # print(sum(df_ro_2017_bi["bio.cg.g/m2"]/df_ro_2017_bi["bio.wh.g/m2"])/len(df_ro_2017_bi["bio.cg.g/m2"]))
-# #
-# # print("Average relative yield in biculture under ro conditions in 2017: ")
-# # print(sum(df_ro_2017_bi["yield.wh.g/m2"]/df_ro_2017_bi["bio.wh.g/m2"])/len(df_ro_2017_bi["yield.wh.g/m2"]))
-# #
-# # print("Average relative yield in monoculture under ro conditions in 2017: ")
-# # print(sum(df_ro_2017_mo["yield.wh.g/m2"]/df_ro_2017_mo["bio.wh.g/m2"])/len(df_ro_2017_mo["yield.wh.g/m2"]))
-#
-# plt.figure()
-# plt.plot(np.asarray(df_am_2017_bi["bio.cg.g/m2"])/np.asarray(df_am_2017_bi["bio.wh.g/m2"]),np.asarray(df_am_2017_bi["yield.wh.g/m2"])/np.asarray(df_am_2017_bi["bio.wh.g/m2"]),linestyle="",marker="o")
-# plt.title("2017 Ambient")
-# plt.xlabel("relative cheatgrass")
-# plt.ylabel("relative yield")
-# plt.show()
-#
-# plt.figure()
-# plt.plot(np.asarray(df_ot_2017_bi["bio.cg.g/m2"])/np.asarray(df_ot_2017_bi["bio.wh.g/m2"]),np.asarray(df_ot_2017_bi["yield.wh.g/m2"])/np.asarray(df_ot_2017_bi["bio.wh.g/m2"]),linestyle="",marker="o")
-# plt.title("2017 Hot (ot)")
-# plt.xlabel("relative cheatgrass")
-# plt.ylabel("relative yield")
-# plt.show()
-#
-# plt.figure()
-# plt.plot(np.asarray(df_ro_2017_bi["bio.cg.g/m2"])/np.asarray(df_ro_2017_bi["bio.wh.g/m2"]),np.asarray(df_ro_2017_bi["yield.wh.g/m2"])/np.asarray(df_ro_2017_bi["bio.wh.g/m2"]),linestyle="",marker="o")
-# plt.title("2017 Hot/dry (ro)")
-# plt.xlabel("relative cheatgrass")
-# plt.ylabel("relative yield")
-# plt.show()
+####################################
+scale = max(list(df_am_2015_bi["yield.wh.g/m2"]))
 
-# Question: Why is there so much more cheatgrass biomass than wheat biomass?
+cg_am = np.array(list(df_am_2015_bi_cg["bio.cg.g/m2"])+list(df_am_2016_bi_cg["bio.cg.g/m2"])+list(df_am_2017_bi["bio.cg.g/m2"]))
+yd_am = np.array(list(df_am_2015_bi["yield.wh.g/m2"])+ list(df_am_2016_bi["yield.wh.g/m2"])+list(df_am_2017_bi["yield.wh.g/m2"]))/scale
 
-cg = np.array(list(df_am_2015_bi_cg["bio.cg.g/m2"])+list(df_am_2016_bi_cg["bio.cg.g/m2"])+list(df_am_2017_bi["bio.cg.g/m2"]))
-wh = np.array(list(df_am_2015_bi["bio.wh.g/m2"])+list(df_am_2016_bi["bio.wh.g/m2"])+list(df_am_2017_bi["bio.wh.g/m2"]))
-yd = np.array(list(df_am_2015_bi["yield.wh.g/m2"])+list(df_am_2016_bi["yield.wh.g/m2"])+list(df_am_2017_bi["yield.wh.g/m2"]))
 
-plt.figure()
-plt.plot(cg/wh,yd/wh,linestyle="",marker="o")
-plt.title("Ambient")
-plt.xlabel("relative cheatgrass")
-plt.ylabel("relative yield")
-plt.show()
+am = np.polyfit(cg_am,np.log(yd_am),1)
+x = np.arange(0.0001, 1600, 10)
+amp = np.exp(am[0])*np.exp(am[1]*x)
 
-cg = np.array(list(df_ot_2015_bi_cg["bio.cg.g/m2"])+list(df_ot_2016_bi_cg["bio.cg.g/m2"])+list(df_ot_2017_bi["bio.cg.g/m2"]))
-wh = np.array(list(df_ot_2015_bi["bio.wh.g/m2"])+list(df_ot_2016_bi["bio.wh.g/m2"])+list(df_ot_2017_bi["bio.wh.g/m2"]))
-yd = np.array(list(df_ot_2015_bi["yield.wh.g/m2"])+list(df_ot_2016_bi["yield.wh.g/m2"])+list(df_ot_2017_bi["yield.wh.g/m2"]))
+cg_ot = np.array(list(df_ot_2015_bi_cg["bio.cg.g/m2"])+list(df_ot_2016_bi_cg["bio.cg.g/m2"])+list(df_ot_2017_bi["bio.cg.g/m2"]))
+yd_ot = np.array(list(df_ot_2015_bi["yield.wh.g/m2"])+list(df_ot_2016_bi["yield.wh.g/m2"])+list(df_ot_2017_bi["yield.wh.g/m2"]))/scale
+inds = [i for i,y in enumerate(yd_ot) if np.isnan(y) ]
+yd_ot = np.asarray([y for i,y in enumerate(yd_ot) if i not in inds])
+cg_ot = np.asarray([y for i,y in enumerate(cg_ot) if i not in inds])
 
-plt.figure()
-plt.plot(cg/wh,yd/wh,linestyle="",marker="o")
-plt.title("Hot (ot)")
-plt.xlabel("relative cheatgrass")
-plt.ylabel("relative yield")
-plt.show()
+ot = np.polyfit(cg_ot,np.log(yd_ot),1)
+otp = np.exp(ot[0])*np.exp(ot[1]*x)
 
-cg = np.array(list(df_ro_2015_bi_cg["bio.cg.g/m2"])+list(df_ro_2016_bi_cg["bio.cg.g/m2"])+list(df_ro_2017_bi["bio.cg.g/m2"]))
-wh = np.array(list(df_ro_2015_bi["bio.wh.g/m2"])+list(df_ro_2016_bi["bio.wh.g/m2"])+list(df_ro_2017_bi["bio.wh.g/m2"]))
-yd = np.array(list(df_ro_2015_bi["yield.wh.g/m2"])+list(df_ro_2016_bi["yield.wh.g/m2"])+list(df_ro_2017_bi["yield.wh.g/m2"]))
+cg_ro = np.array(list(df_ro_2015_bi_cg["bio.cg.g/m2"])+list(df_ro_2016_bi_cg["bio.cg.g/m2"])+list(df_ro_2017_bi["bio.cg.g/m2"]))
+yd_ro = np.array(list(df_ro_2015_bi["yield.wh.g/m2"])+list(df_ro_2016_bi["yield.wh.g/m2"])+list(df_ro_2017_bi["yield.wh.g/m2"]))/scale
 
-plt.figure()
-plt.plot(cg/wh,yd/wh,linestyle="",marker="o")
-plt.title("Hot/dry (ro)")
-plt.xlabel("relative cheatgrass")
-plt.ylabel("relative yield")
-plt.show()
+ro = np.polyfit(cg_ro,np.log(yd_ro),1)
+rop = np.exp(ro[0])*np.exp(ro[1]*x)
 
 ####################################
 
-cg = np.array(list(df_am_2015_bi_cg["bio.cg.g/m2"])+list(df_am_2016_bi_cg["bio.cg.g/m2"])+list(df_am_2017_bi["bio.wh.g/m2"]))
-wh = np.array(list(df_am_2015_bi["bio.wh.g/m2"])+list(df_am_2016_bi["bio.wh.g/m2"])+list(df_am_2017_bi["bio.cg.g/m2"]))
-yd = np.array(list(df_am_2015_bi["yield.wh.g/m2"])+list(df_am_2016_bi["yield.wh.g/m2"])+list(df_am_2017_bi["yield.wh.g/m2"]))
-
 plt.figure()
-plt.plot(cg/wh,yd/wh,linestyle="",marker="o")
+plt.plot(cg_am,yd_am,linestyle="",marker="o")
+plt.plot(x,amp)
 plt.title("Ambient")
-plt.xlabel("relative cheatgrass")
-plt.ylabel("relative yield")
+plt.xlabel("cheatgrass biomass")
+plt.ylabel("relative yield biomass")
+plt.ylim([-0.1,1.15])
+plt.xlim([-50,1500])
 plt.show()
 
-cg = np.array(list(df_ot_2015_bi_cg["bio.cg.g/m2"])+list(df_ot_2016_bi_cg["bio.cg.g/m2"])+list(df_ot_2017_bi["bio.wh.g/m2"]))
-wh = np.array(list(df_ot_2015_bi["bio.wh.g/m2"])+list(df_ot_2016_bi["bio.wh.g/m2"])+list(df_ot_2017_bi["bio.cg.g/m2"]))
-yd = np.array(list(df_ot_2015_bi["yield.wh.g/m2"])+list(df_ot_2016_bi["yield.wh.g/m2"])+list(df_ot_2017_bi["yield.wh.g/m2"]))
-
 plt.figure()
-plt.plot(cg/wh,yd/wh,linestyle="",marker="o")
+plt.plot(cg_ot,yd_ot,linestyle="",marker="o")
+plt.plot(x,otp)
 plt.title("Hot (ot)")
-plt.xlabel("relative cheatgrass")
-plt.ylabel("relative yield")
+plt.xlabel("cheatgrass biomass")
+plt.ylabel("relative yield biomass")
+plt.ylim([-0.1,1.15])
+plt.xlim([-50,1500])
 plt.show()
 
-cg = np.array(list(df_ro_2015_bi_cg["bio.cg.g/m2"])+list(df_ro_2016_bi_cg["bio.cg.g/m2"])+list(df_ro_2017_bi["bio.wh.g/m2"]))
-wh = np.array(list(df_ro_2015_bi["bio.wh.g/m2"])+list(df_ro_2016_bi["bio.wh.g/m2"])+list(df_ro_2017_bi["bio.cg.g/m2"]))
-yd = np.array(list(df_ro_2015_bi["yield.wh.g/m2"])+list(df_ro_2016_bi["yield.wh.g/m2"])+list(df_ro_2017_bi["yield.wh.g/m2"]))
-
 plt.figure()
-plt.plot(cg/wh,yd/wh,linestyle="",marker="o")
+plt.plot(cg_ro,yd_ro,linestyle="",marker="o")
+plt.plot(x,rop)
 plt.title("Hot/dry (ro)")
-plt.xlabel("relative cheatgrass")
-plt.ylabel("relative yield")
-plt.show()
-
-####################################
-
-cg = np.array(list(df_am_2015_bi_cg["bio.cg.g/m2"])+list(df_am_2016_bi_cg["bio.cg.g/m2"]))
-wh = np.array(list(df_am_2015_bi["bio.wh.g/m2"])+list(df_am_2016_bi["bio.wh.g/m2"]))
-yd = np.array(list(df_am_2015_bi["yield.wh.g/m2"])+list(df_am_2016_bi["yield.wh.g/m2"]))
-
-plt.figure()
-plt.plot(cg/wh,yd/wh,linestyle="",marker="o")
-plt.title("Ambient")
-plt.xlabel("relative cheatgrass")
-plt.ylabel("relative yield")
-plt.show()
-
-cg = np.array(list(df_ot_2015_bi_cg["bio.cg.g/m2"])+list(df_ot_2016_bi_cg["bio.cg.g/m2"]))
-wh = np.array(list(df_ot_2015_bi["bio.wh.g/m2"])+list(df_ot_2016_bi["bio.wh.g/m2"]))
-yd = np.array(list(df_ot_2015_bi["yield.wh.g/m2"])+list(df_ot_2016_bi["yield.wh.g/m2"]))
-
-plt.figure()
-plt.plot(cg/wh,yd/wh,linestyle="",marker="o")
-plt.title("Hot (ot)")
-plt.xlabel("relative cheatgrass")
-plt.ylabel("relative yield")
-plt.show()
-
-cg = np.array(list(df_ro_2015_bi_cg["bio.cg.g/m2"])+list(df_ro_2016_bi_cg["bio.cg.g/m2"]))
-wh = np.array(list(df_ro_2015_bi["bio.wh.g/m2"])+list(df_ro_2016_bi["bio.wh.g/m2"]))
-yd = np.array(list(df_ro_2015_bi["yield.wh.g/m2"])+list(df_ro_2016_bi["yield.wh.g/m2"]))
-
-plt.figure()
-plt.plot(cg/wh,yd/wh,linestyle="",marker="o")
-plt.title("Hot/dry (ro)")
-plt.xlabel("relative cheatgrass")
-plt.ylabel("relative yield")
+plt.xlabel("cheatgrass biomass")
+plt.ylabel("relative yield biomass")
+plt.ylim([-0.1,1.15])
+plt.xlim([-50,1500])
 plt.show()
 
 
