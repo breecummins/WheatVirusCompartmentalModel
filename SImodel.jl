@@ -120,12 +120,12 @@ end
 #         Cnplus1 = param.K
 #     end
 #     gamma2 = param.population[1] <= 5e5 ? param.climate.low_gamma2.prop : param.climate.high_gamma2.prop #arbitrary threshold
-#     Ynplus1 = (1-gamma2)*( param.gamma11.prop*V1[3] + param.gamma13.prop*(V3[3] - V1[3]) + 1 - V3[3] ) 
+#     Ynplus1 = (1-gamma2)*( param.gamma11.prop*V1[3] + param.gamma13.prop*(V3[3] - V1[3]) + 1 - V3[3] )
 #     (Cnplus1,Ynplus1)
 # end
 
 function wheat_yield(param::Parameter,V1::Array{Float64,1},V3::Array{Float64,1},V5::Array{Float64,1})
-    Ynplus1 = (1-gamma2)*( param.gamma11.prop*V1[3] + param.gamma13.prop*(V3[3] - V1[3]) + 1 - V3[3] ) 
+    Ynplus1 = gamma2(C)*( param.gamma11.prop*V1[3] + param.gamma13.prop*(V3[3] - V1[3]) + 1 - V3[3] )
     (Cnplus1,Ynplus1)
 end
 
