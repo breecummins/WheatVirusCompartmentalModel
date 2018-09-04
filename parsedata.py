@@ -203,4 +203,23 @@ plt.xlabel("# cheatgrass plants (spring)")
 plt.ylabel("yield biomass scaled by ambient 2015")
 plt.savefig('ro_numplants.pdf')
 
+cg_bio = np.array(list(df_am_2016_bi_cg["bio.cg.g/m2"])+list(df_am_2017_bi["bio.cg.g/m2"])+list(df_ot_2016_bi_cg["bio.cg.g/m2"])+list(df_ot_2017_bi["bio.cg.g/m2"])+list(df_ro_2016_bi_cg["bio.cg.g/m2"])+list(df_ro_2017_bi["bio.cg.g/m2"]))
+cg_pts = np.array(list(df_am_2016_bi_cg["springdensity.cg.plants/m2"])+list(df_am_2017_bi["springdensity.cg.plants/m2"])+list(df_ot_2016_bi_cg["springdensity.cg.plants/m2"])+list(df_ot_2017_bi["springdensity.cg.plants/m2"])+list(df_ro_2016_bi_cg["springdensity.cg.plants/m2"])+list(df_ro_2017_bi["springdensity.cg.plants/m2"]))
+
+def logfit(a,x,y):
+    return a[0]*np.log(a[1]*x) -y
+
+x = np.arange(100, 800, 1)
+
+p = least_squares(logfit,np.array([1,1]),args=(cg_pts, cg_bio))
+logfitg = p["x"][0]*np.log(p["x"][1]*x)
+
+plt.figure()
+plt.plot(cg_pts, cg_bio, linestyle="",marker="o")
+plt.plot(x,logfitg)
+plt.title("All climates 2016-2017")
+plt.xlabel("# cheatgrass plants (spring)")
+plt.ylabel("cheatgrass biomass")
+plt.savefig('all_numplants.pdf')
+
 plt.show()
