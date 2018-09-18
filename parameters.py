@@ -57,11 +57,12 @@ def beta(source_spp, target_spp, source_pop, target_pop, field_size):
 def plot_transmission():
     import matplotlib.pyplot as plt
     pops = range(100, 2500000, 100)
-    beta = [transmission_rate('wh', 'wh', n, n, 10000) for n in pops]
-    plt.plot(pops, beta)
+    b = [beta('wh', 'wh', n, n, 10000) for n in pops]
+    plt.plot(pops, b)
 
-    beta = [transmission_rate('cg', 'cg', n, n, 10000) for n in pops]
-    plt.plot(pops, beta)
+    b = [beta('cg', 'cg', n, n, 10000) for n in pops]
+    plt.plot(pops, b)
     plt.show()
 
-
+if __name__ == "__main__":
+    plot_transmission()
