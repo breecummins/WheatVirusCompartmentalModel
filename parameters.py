@@ -22,12 +22,11 @@ def gamma1():
     return gamma11, gamma13
 
 
-def gamma2(C, climate):
-    # cheatgrass population (C) to wheat yield (climate dependent function)
+def gamma2(C, climate, field_size):
+    # cheatgrass population (C) per m^2 to scaled wheat yield (climate dependent function)
+    # parameters calculated from data; see fits_and_figs_from_data.py
 
-    def cg_plants_to_cg_biomass(x):
-        (A, K, n) = (1.53784145e+03, 1.39634038e+06, 2.37217919e+00)
-        return A * x ** n / (K + x ** n)
+    slope = 1.8382244230041977
 
     if climate == 'am':
         (n, A) = (-0.00431991, 0.71898844)
@@ -38,7 +37,7 @@ def gamma2(C, climate):
     else:
         raise ValueError("Climate not recognized.")
 
-    return A * np.exp(n * cg_plants_to_cg_biomass(C))
+    return A * np.exp(n * slope * C / field_size)
 
 
 def beta(source_spp, target_spp, source_pop, target_pop, field_size):
@@ -52,6 +51,18 @@ def beta(source_spp, target_spp, source_pop, target_pop, field_size):
     S = source_pop / field_size / 10
     T = target_pop / field_size / 10
     return A / 2 * np.exp(-1 / S - 1 / T)
+
+
+def beta_matrix(pops,field_size):
+    # matrix order = [cheatgrass, volunteer wheat, wheat, new volunteer wheat]
+    C, WV, W, NWV = pops
+    bm = np.array([
+        [beta("cg","cg",C,C,field_size), beta("wh","cg",WV,C,field_size), beta("wh","cg",W,C,field_size), 0.0],
+        [beta("cg","wh",C,WV,field_size), beta("wh","wh",WV,WV,field_size), beta("wh","wh",W,WV,field_size),0.0],
+        [beta("cg","wh",C,W,field_size), beta("wh","wh",WV,W,field_size), beta("wh","wh",W,W,field_size),0.0],
+        [0.0, beta("wh","wh",WV,NWV,field_size),beta("wh","wh",W,NWV,field_size),0.0]
+    ])
+    return bm*pops
 
 
 def plot_transmission():
