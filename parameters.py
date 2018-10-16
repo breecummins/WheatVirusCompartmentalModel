@@ -22,7 +22,7 @@ def gamma1():
     return gamma11, gamma13
 
 
-def gamma2(C, climate, field_size):
+def gamma2(C, climate):
     # cheatgrass population (C) per m^2 to scaled wheat yield (climate dependent function)
     # parameters calculated from data; see fits_and_figs_from_data.py
 
@@ -37,10 +37,10 @@ def gamma2(C, climate, field_size):
     else:
         raise ValueError("Climate not recognized.")
 
-    return A * np.exp(n * slope * C / field_size)
+    return A * np.exp(n * slope * C)
 
 
-def beta(source_spp, target_spp, source_pop, target_pop, field_size):
+def beta(source_spp, target_spp, source_pop, target_pop):
     if source_spp not in ('cg', 'wh') or target_spp not in ('cg', 'wh'):
         raise ValueError("Species not recognized.")
     if (source_spp, target_spp) == ('cg', 'cg'):
@@ -48,19 +48,19 @@ def beta(source_spp, target_spp, source_pop, target_pop, field_size):
     else:
         A = 1.0
     # number plants per 1/10 m^2
-    S = source_pop / field_size / 10
-    T = target_pop / field_size / 10
+    S = source_pop / 10
+    T = target_pop / 10
     return A / 2 * np.exp(-1 / S - 1 / T)
 
 
-def beta_matrix(pops,field_size):
+def beta_matrix(pops):
     # matrix order = [cheatgrass, volunteer wheat, wheat, new volunteer wheat]
     C, WV, W, NWV = pops
     bm = np.array([
-        [beta("cg","cg",C,C,field_size), beta("wh","cg",WV,C,field_size), beta("wh","cg",W,C,field_size), 0.0],
-        [beta("cg","wh",C,WV,field_size), beta("wh","wh",WV,WV,field_size), beta("wh","wh",W,WV,field_size),0.0],
-        [beta("cg","wh",C,W,field_size), beta("wh","wh",WV,W,field_size), beta("wh","wh",W,W,field_size),0.0],
-        [0.0, beta("wh","wh",WV,NWV,field_size),beta("wh","wh",W,NWV,field_size),0.0]
+        [beta("cg","cg",C,C), beta("wh","cg",WV,C), beta("wh","cg",W,C), 0.0],
+        [beta("cg","wh",C,WV), beta("wh","wh",WV,WV), beta("wh","wh",W,WV),0.0],
+        [beta("cg","wh",C,W), beta("wh","wh",WV,W), beta("wh","wh",W,W),0.0],
+        [0.0, beta("wh","wh",WV,NWV),beta("wh","wh",W,NWV),0.0]
     ])
     return bm*pops
 
