@@ -26,14 +26,14 @@ def gamma2(C, climate):
     # cheatgrass population (C) per m^2 to scaled wheat yield (climate dependent function)
     # parameters calculated from data; see fits_and_figs_from_data.py
 
-    slope = 1.8382244230041977
+    slope = 1.6726232412592983
 
     if climate == 'am':
-        (n, A) = (-0.00431991, 0.71898844)
+        (n, A) = (-0.00323958, 1.35961716)
     elif climate == 'ot':
-        (n, A) = (-0.00303991, 0.73144328)
+        (n, A) = (-0.00238718, 1.38985261)
     elif climate == 'ro':
-        (n, A) = (-0.00237851, 0.55373904)
+        (n, A) = (-0.0018778, 1.05088302)
     else:
         raise ValueError("Climate not recognized.")
 
