@@ -26,7 +26,10 @@ def plot_data(xpts,ypts,more_than_one_pts=False,legend = False,more_than_one_cur
         for (xp, yp, c) in zip(x, curve, color):
             plt.plot(xp, yp, color=c)
     elif x is not None and curve is not None:
-        plt.plot(x,curve)
+        if not isinstance(color,str):
+            plt.plot(x,curve)
+        else:
+            plt.plot(x,curve,color=color)
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
