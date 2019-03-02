@@ -2,6 +2,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import least_squares
 
+from matplotlib import rc
+rc('text',usetex=True)
+fontsize=16
+rc('axes', labelsize=fontsize)    # fontsize of the x and y labels
+rc('xtick', labelsize=14)    # fontsize of the tick labels
+rc('ytick', labelsize=14)    # fontsize of the tick labels
+rc('legend', fontsize=fontsize)    # legend fontsize
+
+
 ################################
 # generic plotting function
 ################################
@@ -38,7 +47,72 @@ def plot_data(xpts,ypts,more_than_one_pts=False,legend = False,more_than_one_cur
     if ylim:
         plt.ylim(ylim)
     if savefile:
-        plt.savefig(savefile)
+        plt.savefig(savefile,bbox_inches="tight")
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+def plot_data_with_textbox(xpts,ypts,params,curve_type,more_than_one_pts=False,legend = False,more_than_one_curve=False,x=None,curve=None,xlabel="",ylabel="",title="",ylim=None,xlim=None,savefile="",color="blue",show=False):
+    fig,ax = plt.subplots()
+    if more_than_one_pts:
+        if isinstance(color,str):
+            color = [color]*len(xpts)
+        if not legend:
+            for (xp, yp, c) in zip(xpts, ypts, color):
+                plt.plot(xp, yp, linestyle="", marker="o", color=c)
+        else:
+            for (xp,yp,c,lab) in zip(xpts,ypts,color,legend):
+                plt.plot(xp,yp,linestyle="",marker="o",color=c,label=lab)
+            plt.legend()
+    else:
+        plt.plot(xpts, ypts, linestyle="", marker="o", color=color)
+    if more_than_one_curve:
+        if isinstance(color,str):
+            color = [color]*len(xpts)
+        for (xp, yp, c) in zip(x, curve, color):
+            plt.plot(xp, yp, color=c)
+    elif x is not None and curve is not None:
+        if not isinstance(color,str):
+            plt.plot(x,curve)
+        else:
+            plt.plot(x,curve,color=color)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    if xlim:
+        plt.xlim(xlim)
+    if ylim:
+        plt.ylim(ylim)
+
+    # make text box
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+
+    if curve_type == "exp":
+        amp = "{:.02f}".format(params[0])
+        exp = "{:.04f}".format(params[1])
+        textstr = r'$y = '+amp+'e^{'+exp+'x}$'
+        ax.text(0.65, 0.95, textstr, transform=ax.transAxes, fontsize=16,
+                verticalalignment='top', bbox=props)
+    elif curve_type == "lin":
+        textstr = r'$y = {:.02f}x$'.format(params[0])
+        ax.text(0.7, 0.95, textstr, transform=ax.transAxes, fontsize=16,
+                verticalalignment='top', bbox=props)
+    elif curve_type == "exp_lin":
+        amp = "{:.02f}".format(params[0])
+        exp = "{:.04f}".format(params[1])
+        slope = "{:.02f}".format(params[2])
+        textstr = r'$y = ' + amp + 'e^{' + exp + '('+slope+')x}$'
+        ax.text(0.575, 0.95, textstr, transform=ax.transAxes, fontsize=16,
+            verticalalignment='top', bbox=props)
+
+
+    # place a text box in upper right in axes coords
+
+
+    if savefile:
+        plt.savefig(savefile,bbox_inches="tight")
     if show:
         plt.show()
     else:

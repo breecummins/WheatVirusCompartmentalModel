@@ -30,7 +30,7 @@ x = np.arange(0,4000,1)
 IC = np.array([1,-1])
 curve = get_curve(xpts,ypts,lin_curve,IC,x)
 
-plot_data([wh_bio_15,wh_bio_16,wh_bio_17],[wh_yd_15,wh_yd_16,wh_yd_17],more_than_one_pts=True,legend=["2015","2016","2017"],x=x,curve=curve,xlabel="wheat biomass",ylabel="wheat yield",title="wheat yield vs biomass per m^2, pooled climates",savefile="wh_yieldvsbio_pooled_15-17.pdf",color=["blue","red","black"],show=False)
+plot_data([wh_bio_15,wh_bio_16,wh_bio_17],[wh_yd_15,wh_yd_16,wh_yd_17],more_than_one_pts=True,legend=["2015","2016","2017"],x=x,curve=curve,xlabel="wheat biomass",ylabel="wheat yield",title="",savefile="wh_yieldvsbio_pooled_15-17.pdf",color=["blue","red","black"],show=False)
 
 
 ##############################################################################################
@@ -41,8 +41,8 @@ wh_pts_mo_16_17 = np.array(list(df_am_2016_mo_wh["springdensity.wh.plants/m2"])+
 
 wh_bio_mo_16_17 = np.array(list(df_am_2016_mo_wh["bio.wh.g/m2"])+list(df_am_2017_mo_wh["bio.wh.g/m2"])+ list(df_ot_2016_mo_wh["bio.wh.g/m2"])+list(df_ot_2017_mo_wh["bio.wh.g/m2"]) + list(df_ro_2016_mo_wh["bio.wh.g/m2"])+list(df_ro_2017_mo_wh["bio.wh.g/m2"]))/0.75
 
-plot_data(wh_pts_mo_16_17,wh_bio_mo_16_17,xlabel="# wheat plants",ylabel="wheat biomass",
-          title="wheat biomass vs plants per m^2, monoculture, pooled climates, 2016-17",
+plot_data(wh_pts_mo_16_17,wh_bio_mo_16_17,xlabel="\# wheat plants",ylabel="wheat biomass",
+          title="",
           savefile="wh_mo_biovspts_pooled_16-17.pdf",show=False)
 
 ###########
@@ -51,8 +51,8 @@ wh_pts_bi_16_17 = np.array(list(df_am_2016_bi_wh["springdensity.wh.plants/m2"])+
 wh_bio_bi_16_17 = np.array(list(df_am_2016_bi_wh["bio.wh.g/m2"])+list(df_am_2017_bi_wh["bio.wh.g/m2"])+ list(
     df_ot_2016_bi_wh["bio.wh.g/m2"])+list(df_ot_2017_bi_wh["bio.wh.g/m2"]) + list(df_ro_2016_bi_wh["bio.wh.g/m2"])+list(df_ro_2017_bi_wh["bio.wh.g/m2"]))/0.75
 
-plot_data(wh_pts_bi_16_17,wh_bio_bi_16_17,xlabel="# wheat plants",ylabel="wheat biomass",
-          title="wheat biomass vs plants per m^2, biculture, pooled climates, 2016-17",
+plot_data(wh_pts_bi_16_17,wh_bio_bi_16_17,xlabel="\# wheat plants",ylabel="wheat biomass",
+          title="",
           savefile="wh_bi_biovspts_pooled_16-17.pdf",show=False)
 
 #############
@@ -77,7 +77,7 @@ curve_bi = get_curve(wh_pts_bi,wh_bio_bi,lin_curve,IC,x)
 # curve_bi = get_curve(wh_pts_bi/0.75,wh_bio_bi/0.75,hill_curve,IC,x)
 
 
-plot_data([wh_pts_mo_16_17,wh_pts_bi_16_17],[wh_bio_mo_16_17,wh_bio_bi_16_17],more_than_one_pts=True,legend=["mono","bi"],more_than_one_curve=True,x=[x,x],curve=[curve_mo,curve_bi],xlabel="# wheat plants",ylabel="wheat biomass",title="wheat biomass vs plants per m^2, pooled climates, 2016-17",savefile="wh_bimo_biovspts_pooled_16-17.pdf",color=["blue","red"],show=False)
+plot_data([wh_pts_mo_16_17,wh_pts_bi_16_17],[wh_bio_mo_16_17,wh_bio_bi_16_17],more_than_one_pts=True,legend=["mono","bi"],more_than_one_curve=True,x=[x,x],curve=[curve_mo,curve_bi],xlabel="\# wheat plants",ylabel="wheat biomass",title="",savefile="wh_bimo_biovspts_pooled_16-17.pdf",color=["blue","red"],show=False)
 
 
 ####################################################################
@@ -94,7 +94,7 @@ curve = get_curve(cg_pts,cg_bio,lin_curve,IC,x)
 slope = fit(cg_pts,cg_bio,lin_curve,IC)[0]
 print("Biomass to number plants slope {}".format(slope))
 
-plot_data(cg_pts,cg_bio,x=x,curve=curve,xlabel="# cheatgrass plants",ylabel="cheatgrass biomass",title="cheatgrass biomass vs plants per m^2, biculture, pooled climates, 2016-17",savefile="cg_bi_biovspts_pooled_16-17.pdf",show=False)
+plot_data(cg_pts,cg_bio,x=x,curve=curve,xlabel="\# cheatgrass plants",ylabel="cheatgrass biomass",title="",savefile="cg_bi_biovspts_pooled_16-17.pdf",show=False)
 
 
 ##################################################################
@@ -116,8 +116,7 @@ curve_am = get_curve(cg_am,yd_am,exp_curve,IC,x)
 p_am = fit(cg_am,yd_am,exp_curve,IC)
 print("Cheatgrass biomass to yield exp parameters (ambient) {}".format(p_am))
 
-plot_data(cg_am,yd_am,x=x,curve=curve_am,color="blue",xlabel="cheatgrass biomass",ylabel="wheat yield scaled to mean "
-                                                                                       "ambient 2015",ylim=ylim,title="wheat yield vs cheatgrass biomass per m^2, biculture, ambient, 2015-17",savefile="yieldvsbio_ambient_15-17.pdf",show=False)
+plot_data_with_textbox(cg_am,yd_am,p_am,"exp",x=x,curve=curve_am,color="blue",xlabel="cheatgrass biomass",ylabel="relative wheat yield",ylim=ylim,title="",savefile="yieldvsbio_ambient_15-17.pdf",show=False)
 
 ###########
 cg_ot = np.array(list(df_ot_2015_bi_cg["bio.cg.g/m2"])+list(df_ot_2016_bi_cg["bio.cg.g/m2"])+list(df_ot_2017_bi_cg["bio.cg.g/m2"]))/0.75
@@ -133,8 +132,7 @@ curve_ot = get_curve(cg_ot,yd_ot,exp_curve,IC,x)
 p_ot = fit(cg_ot,yd_ot,exp_curve,IC)
 print("Cheatgrass biomass to yield exp parameters (hot) {}".format(p_ot))
 
-plot_data(cg_ot,yd_ot,x=x,curve=curve_ot,color="red",xlabel="cheatgrass biomass",ylabel="wheat yield scaled to mean "
-                                                                                      "ambient 2015",ylim=ylim,title="wheat yield vs cheatgrass biomass per m^2, biculture, hot, 2015-17",savefile="yieldvsbio_hot_15-17.pdf",show=False)
+plot_data_with_textbox(cg_ot,yd_ot,p_ot,"exp",x=x,curve=curve_ot,color="red",xlabel="cheatgrass biomass",ylabel="relative wheat yield",ylim=ylim,title="",savefile="yieldvsbio_hot_15-17.pdf",show=False)
 
 ############
 cg_ro = np.array(list(df_ro_2015_bi_cg["bio.cg.g/m2"])+list(df_ro_2016_bi_cg["bio.cg.g/m2"])+list(df_ro_2017_bi_cg["bio.cg.g/m2"]))/0.75
@@ -150,13 +148,12 @@ curve_ro = get_curve(cg_ro,yd_ro,exp_curve,IC,x)
 p_ro = fit(cg_ro,yd_ro,exp_curve,IC)
 print("Cheatgrass biomass to yield exp parameters (hot/dry) {}".format(p_ro))
 
-plot_data(cg_ro,yd_ro,x=x,curve=curve_ro,color="black",xlabel="cheatgrass biomass",ylabel="wheat yield scaled to mean "
-                                                                                        "ambient 2015",ylim=ylim,title="wheat yield vs cheatgrass biomass per m^2, biculture, hot/dry, 2015-17",savefile="yieldvsbio_hotdry_15-17.pdf",show=False)
+plot_data_with_textbox(cg_ro,yd_ro,p_ro,"exp",x=x,curve=curve_ro,color="black",xlabel="cheatgrass biomass",ylabel="relative wheat yield",ylim=ylim,title="",savefile="yieldvsbio_hotdry_15-17.pdf",show=False)
 
 ###############
 plot_data([cg_am,cg_ot,cg_ro],[yd_am,yd_ot,yd_ro],more_than_one_pts=True,legend=["ambient","hot","hot/dry"],more_than_one_curve=True,x=[x,x,x],curve=[curve_am,curve_ot,curve_ro],xlabel="cheatgrass biomass",
           ylabel="wheat yield",
-          title="wheat yield vs cheatgrass biomass per m^2, 2015-17",savefile="yieldvsbio_allclimates_15-17.pdf",
+          title="",savefile="yieldvsbio_allclimates_15-17.pdf",
           color=["blue","red","black"],show=False)
 
 
@@ -180,25 +177,25 @@ curve_am = exp_curve(p_am,slope*x)
 curve_ot = exp_curve(p_ot,slope*x)
 curve_ro = exp_curve(p_ro,slope*x)
 
-plot_data([cg_pts_am_16_17,cg_pts_ot_16_17,cg_pts_ro_16_17],[yd_am_16_17,yd_ot_16_17,yd_ro_16_17],more_than_one_pts=True,legend=["ambient","hot","hot/dry"],more_than_one_curve=True,x=[x,x,x],curve=[curve_am,curve_ot,curve_ro],xlabel="# cheatgrass plants",
-          ylabel="wheat yield",
-          title="wheat yield vs cheatgrass plants per m^2, 2016-17",savefile="yieldvspts_allclimates_16-17.pdf",
-          color=["blue","red","black"],show=False)
+plot_data([cg_pts_am_16_17,cg_pts_ot_16_17,cg_pts_ro_16_17],[yd_am_16_17,yd_ot_16_17,yd_ro_16_17],more_than_one_pts=True,legend=["ambient","hot","hot/dry"],more_than_one_curve=True,x=[x,x,x],curve=[curve_am,curve_ot,curve_ro],xlabel="\# cheatgrass plants",
+          ylabel="relative wheat yield",
+          title="",savefile="yieldvspts_allclimates_16-17.pdf",
+          color=["blue","red","black"],show=False,ylim=ylim)
 
-plot_data(cg_pts_am_16_17,yd_am_16_17,x=x,curve=curve_am,xlabel="# cheatgrass plants",
-          ylabel="wheat yield",
-          title="wheat yield vs cheatgrass plants per m^2, ambient, 2016-17",
-          savefile="yieldvspts_ambient_16-17.pdf.pdf",
-          color="blue",show=False)
+plot_data_with_textbox(cg_pts_am_16_17,yd_am_16_17,list(p_am)+[slope],"exp_lin",x=x,curve=curve_am,xlabel="\# cheatgrass plants",
+          ylabel="relative wheat yield",
+          title="",
+          savefile="yieldvspts_ambient_16-17.pdf",
+          color="blue",show=False,ylim=ylim)
 
-plot_data(cg_pts_ot_16_17,yd_ot_16_17,x=x,curve=curve_ot,xlabel="# cheatgrass plants",
-          ylabel="wheat yield",
-          title="wheat yield vs cheatgrass plants per m^2, hot, 2016-17",
+plot_data_with_textbox(cg_pts_ot_16_17,yd_ot_16_17,list(p_ot)+[slope],"exp_lin",x=x,curve=curve_ot,xlabel="\# cheatgrass plants",
+          ylabel="relative wheat yield",
+          title="",
           savefile="yieldvspts_hot_16-17.pdf",
-          color="red",show=False)
+          color="red",show=False,ylim=ylim)
 
-plot_data(cg_pts_ro_16_17,yd_ro_16_17,x=x,curve=curve_ro,xlabel="# cheatgrass plants",
-          ylabel="wheat yield",
-          title="wheat yield vs cheatgrass plants per m^2, hot/dry, 2016-17",
+plot_data_with_textbox(cg_pts_ro_16_17,yd_ro_16_17,list(p_ro)+[slope],"exp_lin",x=x,curve=curve_ro,xlabel="\# cheatgrass plants",
+          ylabel="relative wheat yield",
+          title="",
           savefile="yieldvspts_hotdry_16-17.pdf",
-          color="black",show=False)
+          color="black",show=False,ylim=ylim)
