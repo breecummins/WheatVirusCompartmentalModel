@@ -16,10 +16,10 @@ def times(climate):
     return x0, x1, x3, x4, x5
 
 
-def gamma1():
-    gamma11 = 0.7
-    gamma13 = 0.85
-    return gamma11, gamma13
+def delta():
+    delta1 = 0.7
+    delta3 = 0.85
+    return delta1, delta3
 
 
 # def gamma1():
@@ -28,7 +28,7 @@ def gamma1():
 #     return gamma11, gamma13
 
 
-def gamma2(C, climate):
+def gamma(C, climate):
     # cheatgrass population (C) per m^2 to scaled wheat yield (climate dependent function)
     # parameters calculated from data; see fits_and_figs_from_data.py
 
@@ -46,22 +46,6 @@ def gamma2(C, climate):
     return A * np.exp(n * slope * C)
 
 
-# def beta(source_spp, target_spp, source_pop, target_pop):
-#     if source_spp not in ('cg', 'wh') or target_spp not in ('cg', 'wh'):
-#         raise ValueError("Species not recognized.")
-#     if (source_spp, target_spp) == ('cg', 'cg'):
-#         A = 0.1
-#     else:
-#         A = 1.0
-#     # number plants per 1/10 m^2
-#     S = source_pop / 10
-#     T = target_pop / 10
-#     if S > 0 and T > 0:
-#         return A / 2 * np.exp(-1 / S - 1 / T)
-#     else:
-#         return 0
-
-
 def beta(source_spp, target_spp, source_pop, target_pop):
     if source_spp not in ('cg', 'wh') or target_spp not in ('cg', 'wh'):
         raise ValueError("Species not recognized.")
@@ -73,9 +57,25 @@ def beta(source_spp, target_spp, source_pop, target_pop):
     S = source_pop / 10
     T = target_pop / 10
     if S > 0 and T > 0:
-        return A * np.exp(-1 / S - 1 / T)
+        return A / 2 * np.exp(-1 / S - 1 / T)
     else:
         return 0
+
+
+# def beta(source_spp, target_spp, source_pop, target_pop):
+#     if source_spp not in ('cg', 'wh') or target_spp not in ('cg', 'wh'):
+#         raise ValueError("Species not recognized.")
+#     if (source_spp, target_spp) == ('cg', 'cg'):
+#         A = 0.1
+#     else:
+#         A = 1.0
+#     # number plants per 1/10 m^2
+#     S = source_pop / 10
+#     T = target_pop / 10
+#     if S > 0 and T > 0:
+#         return A * np.exp(-1 / S - 1 / T)
+#     else:
+#         return 0
 
 
 def beta_matrix(pops):
@@ -92,12 +92,24 @@ def beta_matrix(pops):
 
 def plot_transmission():
     import matplotlib.pyplot as plt
-    pops = range(100, 2500000, 100)
-    b = [beta('wh', 'wh', n, n, 10000) for n in pops]
-    plt.plot(pops, b)
+    from matplotlib import rc
+    rc("text",usetex=True)
+    rc("axes",labelsize=16)
+    rc("xtick",labelsize=14)
+    rc("ytick",labelsize=14)
+    pops = range(10, 500, 5)
+    b = [beta('wh', 'wh', n, n) for n in pops]
+    plt.plot(pops, b, color="k",linewidth=2)
 
-    b = [beta('cg', 'cg', n, n, 10000) for n in pops]
-    plt.plot(pops, b)
+    b = [beta('cg', 'cg', n, n) for n in pops]
+    plt.plot(pops, b,color="gray",linewidth=2)
+
+    plt.plot(pops,[0.05]*len(pops),color="k", linestyle="dashed",linewidth=1.0,dashes=(5, 10))
+    plt.plot(pops,[0.5]*len(pops),color="k", linestyle="dashed",linewidth=1.0,dashes=(5, 10))
+    plt.ylabel("Transmission rate")
+    plt.xlabel(r"Number plants per m$^2$")
+    plt.ylim([-0.02,0.52])
+
     plt.show()
 
 if __name__ == "__main__":

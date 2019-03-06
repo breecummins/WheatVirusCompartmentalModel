@@ -27,8 +27,8 @@ def calculate_wheat_yield(C,V1,V3,climate):
     :param climate: 'am' (ambient), 'ot' (hot), or 'ro' (hot/dry)
     :return: wheat yield
     '''
-    gamma11,gamma13 = pm.gamma1()
-    return pm.gamma2(C,climate) * (gamma11 * V1 + gamma13 * (V3 - V1) + 1 - V3)
+    delta1,delta3 = pm.delta()
+    return pm.gamma(C,climate) * (delta1 * V1 + delta3 * (V3 - V1) + 1 - V3)
 
 
 def oneyear(pops,climate,vol_wheat_infected_IC,numsteps):
