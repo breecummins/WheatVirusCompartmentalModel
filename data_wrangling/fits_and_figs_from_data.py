@@ -77,7 +77,7 @@ curve_bi = get_curve(wh_pts_bi,wh_bio_bi,lin_curve,IC,x)
 # curve_bi = get_curve(wh_pts_bi/0.75,wh_bio_bi/0.75,hill_curve,IC,x)
 
 
-plot_data([wh_pts_mo_16_17,wh_pts_bi_16_17],[wh_bio_mo_16_17,wh_bio_bi_16_17],more_than_one_pts=True,legend=["mono","bi"],more_than_one_curve=True,x=[x,x],curve=[curve_mo,curve_bi],xlabel="\# wheat plants",ylabel="wheat biomass",title="",savefile="wh_bimo_biovspts_pooled_16-17.pdf",color=["blue","red"],show=False)
+plot_data([wh_pts_mo_16_17,wh_pts_bi_16_17],[wh_bio_mo_16_17,wh_bio_bi_16_17],more_than_one_pts=True,legend=["mono","bi"],more_than_one_curve=True,x=[x,x],curve=[curve_mo,curve_bi],xlabel="\# wheat plants",ylabel="wheat biomass",title="",savefile="wh_bimo_biovspts_pooled_16-17.pdf",color=["blue","red"],ylim=[-125,3900],show=False)
 
 
 ####################################################################
@@ -94,7 +94,7 @@ curve = get_curve(cg_pts,cg_bio,lin_curve,IC,x)
 slope = fit(cg_pts,cg_bio,lin_curve,IC)[0]
 print("Biomass to number plants slope {}".format(slope))
 
-plot_data(cg_pts,cg_bio,x=x,curve=curve,xlabel="\# cheatgrass plants",ylabel="cheatgrass biomass",title="",savefile="cg_bi_biovspts_pooled_16-17.pdf",show=False)
+plot_data(cg_pts,cg_bio,x=x,curve=curve,xlabel="\# cheatgrass plants",ylabel="cheatgrass biomass",color="red",ylim=[-125,3900],title="",savefile="cg_bi_biovspts_pooled_16-17.pdf",show=False)
 
 
 ##################################################################
