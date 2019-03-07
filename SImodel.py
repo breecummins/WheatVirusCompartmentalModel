@@ -18,7 +18,7 @@ def forwardEuler(A,infected,T,numsteps):
     return infected
 
 
-def calculate_wheat_yield(C,V1,V3,climate):
+def calculate_wheat_yield(C,V1,V3,climate,deltas=None):
     '''
 
     :param C: cheat grass population
@@ -27,11 +27,14 @@ def calculate_wheat_yield(C,V1,V3,climate):
     :param climate: 'am' (ambient), 'ot' (hot), or 'ro' (hot/dry)
     :return: wheat yield
     '''
-    delta1,delta3 = pm.delta()
+    if deltas:
+        (delta1, delta3) = deltas
+    else:
+        delta1,delta3 = pm.delta()
     return pm.gamma(C,climate) * (delta1 * V1 + delta3 * (V3 - V1) + 1 - V3)
 
 
-def oneyear(pops,climate,vol_wheat_infected_IC,numsteps):
+def oneyear(pops,climate,vol_wheat_infected_IC,numsteps,deltas=None):
     '''
 
     :param pops: list or numpy array of four populations in the order of [cheatgrass, volunteer wheat, wheat, new volunteer wheat]
@@ -57,11 +60,11 @@ def oneyear(pops,climate,vol_wheat_infected_IC,numsteps):
     # spread into new volunteer wheat, cheatgrass has died and is not active in spread, gives new IC for next year
     A = bm[1:,1:] / sum(pops[1:])
     new_IC = forwardEuler(A,V4,x5,numsteps)
-    wh_yield = calculate_wheat_yield(pops[0], V1[2], V3[2], climate)
+    wh_yield = calculate_wheat_yield(pops[0], V1[2], V3[2], climate,deltas)
     return wh_yield, new_IC
 
 
-def multiyear(populations,climates,IC=0.10,numsteps=10000):
+def multiyear(populations,climates,IC=0.10,numsteps=10000,deltas=None):
     '''
 
     :param populations: A length N list of numpy arrays of length 4 containing the populations per m^2 for (in order) [cheatgrass, volunteer wheat, wheat, new volunteer wheat]
@@ -75,7 +78,7 @@ def multiyear(populations,climates,IC=0.10,numsteps=10000):
     print(ystr)
     yields = []
     for pops,climate in years:
-        wh_yield, IC = oneyear(pops,climate,IC,numsteps)
+        wh_yield, IC = oneyear(pops,climate,IC,numsteps,deltas)
         yields.append(wh_yield)
     return yields
 

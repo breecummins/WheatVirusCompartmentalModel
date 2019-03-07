@@ -150,13 +150,17 @@ print("Cheatgrass biomass to yield exp parameters (hot/dry) {}".format(p_ro))
 
 plot_data_with_textbox(cg_ro,yd_ro,p_ro,"exp",x=x,curve=curve_ro,color="black",xlabel="cheatgrass biomass",ylabel="relative wheat yield",ylim=ylim,title="",savefile="yieldvsbio_hotdry_15-17.pdf",show=False)
 
+# ###############
+# plot_data([cg_am,cg_ot,cg_ro],[yd_am,yd_ot,yd_ro],more_than_one_pts=True,legend=["ambient","hot","hot/dry"],more_than_one_curve=True,x=[x,x,x],curve=[curve_am,curve_ot,curve_ro],xlabel="cheatgrass biomass",
+#           ylabel="wheat yield",
+#           title="",savefile="yieldvsbio_allclimates_15-17.pdf",
+#           color=["blue","red","black"],show=False)
+
 ###############
-plot_data([cg_am,cg_ot,cg_ro],[yd_am,yd_ot,yd_ro],more_than_one_pts=True,legend=["ambient","hot","hot/dry"],more_than_one_curve=True,x=[x,x,x],curve=[curve_am,curve_ot,curve_ro],xlabel="cheatgrass biomass",
-          ylabel="wheat yield",
+plot_curves_only([x,x,x],[curve_am,curve_ot,curve_ro],xlabel="cheatgrass biomass",
+          ylabel="wheat yield",legend=["ambient","hot","hot/dry"],more_than_one_curve=True,
           title="",savefile="yieldvsbio_allclimates_15-17.pdf",
           color=["blue","red","black"],show=False)
-
-
 
 ###################################################
 # combined linear and exp fits

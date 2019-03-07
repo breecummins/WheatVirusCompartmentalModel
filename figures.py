@@ -23,6 +23,16 @@ def simulate(Cvals,WVvals,Wvals,initial_condition):
     return param_grid
 
 
+def simulate_for_fixed_pops(deltas,C=50,WV=50,W=225,IC=0.5):
+    numsteps = 1000
+    results = {"ambient" : [], "hot" : [], "hot/dry" : []}
+    for h, climate in enumerate(["am", "ot", "ro"]):
+        for d in deltas:
+            lab = "ambient" if climate=="am" else "hot" if climate=="ot" else "hot/dry"
+            results[lab].append(sim.oneyear([C, WV, W, WV], climate, IC, numsteps,(d,d+0.15))[0])
+    return results
+
+
 def params_lowcheatgrass():
     Cvals = list(range(10, 111, 10))
     WVvals = list(range(5, 101, 5))
@@ -36,6 +46,19 @@ def params_highcheatgrass():
     Wvals = list(range(250, 251, 20))
     zord = {"ambient" : 3, "hot" : 5, "hot/dry" : 4}
     return Cvals,WVvals,Wvals,zord
+
+def plot_deltas(results,deltas):
+    losses = [1-d for d in deltas]
+    losses.reverse()
+    plt.figure()
+    for lab,data in results.items():
+        data.reverse()
+        plt.plot(losses,data,label=lab,linewidth=2)
+    plt.xlabel(r"$1-\delta_1$",fontsize=20)
+    plt.ylabel("relative wheat yield")
+    plt.legend()
+    plt.savefig("deltas.pdf",bbox_inches="tight")
+
 
 def make_plot_no_W(Cvals,WVvals,param_grid,zord,savename,init_cond,pt):
     X, Y = np.meshgrid(Cvals,WVvals)
@@ -61,7 +84,7 @@ def make_plot_no_W(Cvals,WVvals,param_grid,zord,savename,init_cond,pt):
     ax.legend([p1,p2,p3],['ambient','hot','hot/dry'],loc="lower left", bbox_to_anchor=f(*pt),
               bbox_transform=ax.transData)
     ax.set_xlabel(r"cheatgrass plants per $m^2$")
-    ax.set_ylabel(r"volunter wheat per $m^2$")
+    ax.set_ylabel(r"volunteer wheat per $m^2$")
     ax.set_zlabel("relative wheat yield")
     ax.set_zlim(zlim)
     plt.savefig(savename+"_{:0.2f}".format(init_cond).replace(".","_")+".pdf")
@@ -90,10 +113,9 @@ def run10(savenamelo = "grid_results_locheatgrass_IC",savenamehi = "grid_results
 if __name__ == "__main__":
     # run01()
     # run10()
-    # run10(savenamelo = "grid_results_locheatgrass_gammayieldloss100_75_IC",savenamehi = "grid_results_hicheatgrass_gammayieldloss100_75_IC",ptlo = (25,100,0.25),pthi = (150,100,0.2))
-    run10(savenamelo = "grid_results_locheatgrass_beta2x_IC",savenamehi = "grid_results_hicheatgrass_beta2x_IC",ptlo = (45,100,0.85),pthi = (150,100,0.45))
-
-
+    deltas = list(np.arange(0,0.701,0.05))
+    results = simulate_for_fixed_pops(deltas)
+    plot_deltas(results,deltas)
 
 
 

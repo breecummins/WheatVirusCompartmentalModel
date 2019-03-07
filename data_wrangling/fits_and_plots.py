@@ -54,6 +54,42 @@ def plot_data(xpts,ypts,more_than_one_pts=False,legend = False,more_than_one_cur
         plt.close()
 
 
+def plot_curves_only(x,curve,legend = False,more_than_one_curve=False,xlabel="",ylabel="",title="",ylim=None,xlim=None,savefile="",color="blue",show=False):
+    plt.figure()
+    if more_than_one_curve:
+        if isinstance(color,str):
+            color = [color]*len(xpts)
+        if not legend:
+            for (xp, yp, c) in zip(x, curve, color):
+                plt.plot(xp, yp, color=c)
+        else:
+            for (xp, yp, c,lab) in zip(x, curve, color,legend):
+                plt.plot(xp, yp, color=c,label=lab)
+            plt.legend()
+    else:
+        if not isinstance(color,str) and not legend:
+            plt.plot(x,curve)
+        elif not legend:
+            plt.plot(x,curve,color=color)
+        elif not isinstance(color,str):
+            plt.plot(x, curve,label=legend[0])
+        else:
+            plt.plot(x, curve, color=color,label=legend[0])
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    if xlim:
+        plt.xlim(xlim)
+    if ylim:
+        plt.ylim(ylim)
+    if savefile:
+        plt.savefig(savefile,bbox_inches="tight")
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
 def plot_data_with_textbox(xpts,ypts,params,curve_type,more_than_one_pts=False,legend = False,more_than_one_curve=False,x=None,curve=None,xlabel="",ylabel="",title="",ylim=None,xlim=None,savefile="",color="blue",show=False):
     fig,ax = plt.subplots()
     if more_than_one_pts:

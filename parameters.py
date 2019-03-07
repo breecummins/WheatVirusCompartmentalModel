@@ -22,12 +22,6 @@ def delta():
     return delta1, delta3
 
 
-# def gamma1():
-#     gamma11 = 0.0
-#     gamma13 = 0.25
-#     return gamma11, gamma13
-
-
 def gamma(C, climate):
     # cheatgrass population (C) per m^2 to scaled wheat yield (climate dependent function)
     # parameters calculated from data; see fits_and_figs_from_data.py
@@ -60,22 +54,6 @@ def beta(source_spp, target_spp, source_pop, target_pop):
         return A / 2 * np.exp(-1 / S - 1 / T)
     else:
         return 0
-
-
-# def beta(source_spp, target_spp, source_pop, target_pop):
-#     if source_spp not in ('cg', 'wh') or target_spp not in ('cg', 'wh'):
-#         raise ValueError("Species not recognized.")
-#     if (source_spp, target_spp) == ('cg', 'cg'):
-#         A = 0.1
-#     else:
-#         A = 1.0
-#     # number plants per 1/10 m^2
-#     S = source_pop / 10
-#     T = target_pop / 10
-#     if S > 0 and T > 0:
-#         return A * np.exp(-1 / S - 1 / T)
-#     else:
-#         return 0
 
 
 def beta_matrix(pops):
