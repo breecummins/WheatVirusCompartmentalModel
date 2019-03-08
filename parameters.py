@@ -16,12 +16,6 @@ def times(climate):
     return x0, x1, x3, x4, x5
 
 
-def delta():
-    delta1 = 0.7
-    delta3 = 0.85
-    return delta1, delta3
-
-
 def gamma(C, climate):
     # cheatgrass population (C) per m^2 to scaled wheat yield (climate dependent function)
     # parameters calculated from data; see fits_and_figs_from_data.py
@@ -40,30 +34,30 @@ def gamma(C, climate):
     return A * np.exp(n * slope * C)
 
 
-def beta(source_spp, target_spp, source_pop, target_pop):
+def beta(source_spp, target_spp, source_pop, target_pop,alpha):
     if source_spp not in ('cg', 'wh') or target_spp not in ('cg', 'wh'):
         raise ValueError("Species not recognized.")
     if (source_spp, target_spp) == ('cg', 'cg'):
         A = 0.1
     else:
         A = 1.0
-    # number plants per 1/10 m^2
-    S = source_pop / 10
-    T = target_pop / 10
+    # number plants
+    S = source_pop
+    T = target_pop
     if S > 0 and T > 0:
-        return A / 2 * np.exp(-1 / S - 1 / T)
+        return A / 2 * np.exp(-alpha / S - alpha / T)
     else:
         return 0
 
 
-def beta_matrix(pops):
+def beta_matrix(pops,alpha):
     # matrix order = [cheatgrass, volunteer wheat, wheat, new volunteer wheat]
     C, WV, W, NWV = pops
     bm = np.array([
-        [beta("cg","cg",C,C), beta("wh","cg",WV,C), beta("wh","cg",W,C), 0.0],
-        [beta("cg","wh",C,WV), beta("wh","wh",WV,WV), beta("wh","wh",W,WV),0.0],
-        [beta("cg","wh",C,W), beta("wh","wh",WV,W), beta("wh","wh",W,W),0.0],
-        [0.0, beta("wh","wh",WV,NWV),beta("wh","wh",W,NWV),0.0]
+        [beta("cg","cg",C,C,alpha), beta("wh","cg",WV,C,alpha), beta("wh","cg",W,C,alpha), 0.0],
+        [beta("cg","wh",C,WV,alpha), beta("wh","wh",WV,WV,alpha), beta("wh","wh",W,WV,alpha),0.0],
+        [beta("cg","wh",C,W,alpha), beta("wh","wh",WV,W,alpha), beta("wh","wh",W,W,alpha),0.0],
+        [0.0, beta("wh","wh",WV,NWV,alpha),beta("wh","wh",W,NWV,alpha),0.0]
     ])
     return bm*pops
 
