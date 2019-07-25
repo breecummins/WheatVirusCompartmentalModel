@@ -162,7 +162,7 @@ def plot_delta_climate(deltas,delta_inds,WVvals,param_grid,clim_grid,savename,in
     am = np.squeeze(clim_grid[:1,:1,:])
     ro = np.squeeze(clim_grid[2:,:1,:])
     clim_diff = ro-am
-    plt.plot(WVvals,clim_diff,"k*", linestyle="",markersize=12,label="ambient vs hot/dry")
+    plt.plot(WVvals,clim_diff,"k",linewidth=2,label="ambient vs hot/dry")
 
     lgd = plt.legend(fontsize=12,bbox_to_anchor=(1,1))
     plt.ylim([-0.5,0])
@@ -202,8 +202,8 @@ def rundeltas(param_func,delta_inds,pt):
 
 
 def multiple_delta_runs():
-    # pg,cg=rundeltas(params_deltas_volwheat_1,[-9,-7,-6,-5,-2],pt=(0.5,100,0.8))
-    # pg,cg=rundeltas(params_deltas_volwheat_2,[-9,-7,-6,-5,-2],pt=(0.5,100,0.8))
+    pg,cg=rundeltas(params_deltas_volwheat_1,[-9,-7,-6,-5,-2],pt=(0.5,100,0.8))
+    pg,cg=rundeltas(params_deltas_volwheat_2,[-9,-7,-6,-5,-2],pt=(0.5,100,0.8))
     pg,cg=rundeltas(params_deltas_volwheat_3,[-9,-7,-6,-5,-2],pt=(0.5,100,0.5))
     pg,cg=rundeltas(params_deltas_volwheat_4,[-9,-7,-6,-5,-2],pt=(0.5,100,0.5))
 
