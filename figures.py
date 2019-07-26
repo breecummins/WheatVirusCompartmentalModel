@@ -11,7 +11,7 @@ rc('legend', fontsize=fontsize)    # legend fontsize
 
 from mpl_toolkits.mplot3d import Axes3D, proj3d
 
-def simulate(Cvals,WVvals,Wvals,initial_condition):
+def simulate(Cvals,WVvals,Wvals,initial_condition,del1=0.7,alpha=10):
     numsteps = 1000
     param_grid = np.zeros((3, len(Cvals), len(WVvals), len(Wvals)))
 
@@ -19,7 +19,7 @@ def simulate(Cvals,WVvals,Wvals,initial_condition):
         for i, C in enumerate(Cvals):
             for j, WV in enumerate(WVvals):
                 for k, W in enumerate(Wvals):
-                    param_grid[h, i, j, k] = sim.oneyear([C, WV, W, WV], climate, (0.7,0.85),10,initial_condition, numsteps)[0]
+                    param_grid[h, i, j, k] = sim.oneyear([C, WV, W, WV], climate,initial_condition, numsteps,(del1,del1+0.15),alpha)[0]
     return param_grid
 
 
@@ -110,9 +110,9 @@ def make_plot_no_W(Cvals,WVvals,param_grid,zord,savename,init_cond,pt):
     f = lambda x,y,z: proj3d.proj_transform(x,y,z, ax.get_proj())[:2]
     ax.legend([p1,p2,p3],['ambient','hot','hot/dry'],loc="lower left", bbox_to_anchor=f(*pt),
               bbox_transform=ax.transData)
-    ax.set_xlabel(r"cheatgrass plants per $m^2$")
-    ax.set_ylabel(r"volunteer wheat per $m^2$")
-    ax.set_zlabel("relative wheat yield")
+    ax.set_xlabel(r"B. tectorum")
+    ax.set_ylabel(r"volunteer wheat")
+    ax.set_zlabel("winter wheat yield")
     ax.set_zlim(zlim)
     plt.savefig(savename+"_{:0.2f}".format(init_cond).replace(".","_")+".pdf")
     plt.show()
@@ -141,9 +141,9 @@ def make_plot_no_W_no_C(deltas,WVvals,param_grid,zord,savename,init_cond,pt):
     f = lambda x,y,z: proj3d.proj_transform(x,y,z, ax.get_proj())[:2]
     ax.legend([p1,p2,p3],['ambient','hot','hot/dry'],loc="lower left", bbox_to_anchor=f(*pt),
               bbox_transform=ax.transData)
-    ax.set_xlabel(r"yield loss $1-\delta_1$")
-    ax.set_ylabel(r"volunteer wheat per $m^2$")
-    ax.set_zlabel("relative wheat yield")
+    ax.set_xlabel(r"$1 - \delta_1$")
+    ax.set_ylabel(r"volunteer wheat")
+    ax.set_zlabel("winter wheat yield")
     ax.set_zlim(zlim)
     plt.savefig(savename+"_{:0.2f}".format(init_cond).replace(".","_")+".pdf")
     plt.show()
@@ -166,8 +166,8 @@ def plot_delta_climate(deltas,delta_inds,WVvals,param_grid,clim_grid,savename,in
 
     lgd = plt.legend(fontsize=12,bbox_to_anchor=(1,1))
     plt.ylim([-0.5,0])
-    plt.xlabel(r"volunteer wheat per m$^2$")
-    plt.ylabel(r"$\Delta$ final yield")
+    plt.xlabel(r"volunteer wheat plants per m$^2$")
+    plt.ylabel(r"$\Delta$ winter wheat yield")
     plt.savefig(savename+"_{:0.2f}".format(initial_condition).replace(".","_")+".pdf",bbox_inches="tight",bbox_extra_artists=(lgd,))
     plt.show()
 
@@ -208,7 +208,9 @@ def multiple_delta_runs():
     pg,cg=rundeltas(params_deltas_volwheat_4,[-9,-7,-6,-5,-2],pt=(0.5,100,0.5))
 
 if __name__ == "__main__":
-    multiple_delta_runs()
+    # multiple_delta_runs()
+    run01()
+    run10()
 
 
 

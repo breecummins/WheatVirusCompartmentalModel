@@ -15,8 +15,9 @@ rc('legend', fontsize=fontsize)    # legend fontsize
 # generic plotting function
 ################################
 
-def plot_data(xpts,ypts,more_than_one_pts=False,legend = False,more_than_one_curve=False,x=None,curve=None,xlabel="",ylabel="",title="",ylim=None,xlim=None,savefile="",color="blue",show=False):
+def plot_data(xpts,ypts,more_than_one_pts=False,legend = False,more_than_one_curve=False,x=None,curve=None, xlabel="", ylabel="", title="",ylim=None,xlim=None,savefile="",color="blue",show=False,verticals=None):
     plt.figure()
+    ax = plt.gca()
     if more_than_one_pts:
         if isinstance(color,str):
             color = [color]*len(xpts)
@@ -39,6 +40,11 @@ def plot_data(xpts,ypts,more_than_one_pts=False,legend = False,more_than_one_cur
             plt.plot(x,curve)
         else:
             plt.plot(x,curve,color=color)
+    if verticals is not None:
+        if ylim is None:
+            ylim = ax.get_ylim()
+        for v in verticals:
+            plt.plot([v]*2,ylim,linestyle="-",color="k")
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
@@ -54,7 +60,7 @@ def plot_data(xpts,ypts,more_than_one_pts=False,legend = False,more_than_one_cur
         plt.close()
 
 
-def plot_curves_only(x,curve,legend = False,more_than_one_curve=False,xlabel="",ylabel="",title="",ylim=None,xlim=None,savefile="",color="blue",show=False):
+def plot_curves_only(x,curve,legend = False,more_than_one_curve=False,xlabel="",ylabel="",title="",ylim=None,xlim=None,savefile="",color="blue",show=False,verticals=None):
     plt.figure()
     if more_than_one_curve:
         if isinstance(color,str):
@@ -75,6 +81,11 @@ def plot_curves_only(x,curve,legend = False,more_than_one_curve=False,xlabel="",
             plt.plot(x, curve,label=legend[0])
         else:
             plt.plot(x, curve, color=color,label=legend[0])
+    if verticals is not None:
+        if ylim is None:
+            ylim = ax.get_ylim()
+        for v in verticals:
+            plt.plot([v]*2,ylim,linestyle="-",color="k")
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
