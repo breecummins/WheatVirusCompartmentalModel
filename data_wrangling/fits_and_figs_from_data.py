@@ -77,7 +77,7 @@ curve_bi = get_curve(wh_pts_bi,wh_bio_bi,lin_curve,IC,x)
 # curve_bi = get_curve(wh_pts_bi/0.75,wh_bio_bi/0.75,hill_curve,IC,x)
 
 
-plot_data([wh_pts_mo_16_17,wh_pts_bi_16_17],[wh_bio_mo_16_17,wh_bio_bi_16_17],more_than_one_pts=True,legend=["mono","bi"],more_than_one_curve=True,x=[x,x],curve=[curve_mo,curve_bi],xlabel="winter wheat plants per m$^2$",ylabel="winter wheat biomass",title="",savefile="wh_bimo_biovspts_pooled_16-17.pdf",color=["blue","red"],ylim=[-125,3900],show=False)
+plot_data([wh_pts_mo_16_17,wh_pts_bi_16_17],[wh_bio_mo_16_17,wh_bio_bi_16_17],more_than_one_pts=True,legend=["WMO","BI"],more_than_one_curve=True,x=[x,x],curve=[curve_mo,curve_bi],xlabel="winter wheat plants per m$^2$",ylabel="winter wheat biomass",title="",savefile="wh_bimo_biovspts_pooled_16-17.pdf",color=["blue","red"],ylim=[-125,3900],show=False)
 
 
 ####################################################################
@@ -94,7 +94,7 @@ curve = get_curve(cg_pts,cg_bio,lin_curve,IC,x)
 slope = fit(cg_pts,cg_bio,lin_curve,IC)[0]
 print("Biomass to number plants slope {}".format(slope))
 
-plot_data(cg_pts,cg_bio,x=x,curve=curve,xlabel="B. tectorum plants per m$^2$",ylabel="B. tectorum biomass",color="red",ylim=[-125,3900],title="",savefile="cg_bi_biovspts_pooled_16-17.pdf",show=False)
+plot_data(cg_pts,cg_bio,x=x,curve=curve,xlabel="B. tectorum plants per m$^2$",ylabel="B. tectorum biomass",legend=["BI"],color="red",ylim=[-125,3900],title="",savefile="cg_bi_biovspts_pooled_16-17.pdf",show=False)
 
 
 ##################################################################
@@ -158,7 +158,7 @@ plot_data_with_textbox(cg_ro,yd_ro,p_ro,"exp",x=x,curve=curve_ro,color="black",x
 
 ###############
 plot_curves_only([x,x,x],[curve_am,curve_ot,curve_ro],xlabel="B. tectorum biomass",
-          ylabel="winter wheat yield",legend=["ambient","hot","hot/dry"],more_than_one_curve=True,
+          ylabel="winter wheat yield",legend=["AMB","OTC","ROS+OTC"],more_than_one_curve=True,
           title="",savefile="yieldvsbio_allclimates_15-17.pdf",
           color=["blue","red","black"],show=False)
 
@@ -182,7 +182,7 @@ curve_am = exp_curve(p_am,slope*x)
 curve_ot = exp_curve(p_ot,slope*x)
 curve_ro = exp_curve(p_ro,slope*x)
 
-plot_curves_only([x,x,x],[curve_am,curve_ot,curve_ro],legend=["ambient","hot","hot/dry"],more_than_one_curve=True,xlabel="B. tectorum plants per m$^2$",
+plot_curves_only([x,x,x],[curve_am,curve_ot,curve_ro],legend=["AMB","OTC","ROS+OTC"],more_than_one_curve=True,xlabel="B. tectorum plants per m$^2$",
           ylabel="winter wheat yield",
           title="",savefile="yieldvspts_allclimates_16-17.pdf",
           color=["blue","red","black"],show=False,ylim=ylim,verticals=[10,100])

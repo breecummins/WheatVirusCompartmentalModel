@@ -29,7 +29,11 @@ def plot_data(xpts,ypts,more_than_one_pts=False,legend = False,more_than_one_cur
                 plt.plot(xp,yp,linestyle="",marker="o",color=c,label=lab)
             plt.legend()
     else:
-        plt.plot(xpts, ypts, linestyle="", marker="o", color=color)
+        if not legend:
+            plt.plot(xpts, ypts, linestyle="", marker="o", color=color)
+        else:
+            plt.plot(xpts, ypts, linestyle="", marker="o", color=color,label=legend[0])
+            plt.legend()
     if more_than_one_curve:
         if isinstance(color,str):
             color = [color]*len(xpts)
