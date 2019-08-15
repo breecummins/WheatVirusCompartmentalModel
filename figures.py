@@ -1,6 +1,6 @@
 import SImodel as sim
-import parameters
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import rc
 rc('text',usetex=True)
@@ -92,7 +92,7 @@ def params_deltas_volwheat_4():
     return Cvals, WVvals, Wvals, deltas, zord, alpha
 
 
-def make_plot_no_W(Cvals,WVvals,param_grid,zord,savename,init_cond,pt):
+def make_plot_no_W(Cvals,WVvals,param_grid,zord,savename,init_cond,pt,alpha):
     X, Y = np.meshgrid(Cvals,WVvals)
 
     fig = plt.figure()
@@ -119,11 +119,11 @@ def make_plot_no_W(Cvals,WVvals,param_grid,zord,savename,init_cond,pt):
     ax.set_ylabel(r"volunteer wheat")
     ax.set_zlabel("winter wheat yield")
     ax.set_zlim(zlim)
-    plt.savefig(savename+"_{:0.2f}".format(init_cond).replace(".","_")+".pdf")
+    plt.savefig(savename+"_{:0.2f}".format(init_cond).replace(".","_")+"alpha_{}.pdf".format(int(alpha)))
     # plt.show()
 
 
-def make_plot_no_W_no_C(deltas,WVvals,param_grid,zord,savename,init_cond,pt):
+def make_plot_no_W_no_C(deltas,WVvals,param_grid,zord,savename,init_cond,pt,alpha):
     del1,del2 = zip(*deltas)
     X, Y = np.meshgrid([1-d for d in del1[:-1]],WVvals)
 
@@ -151,71 +151,87 @@ def make_plot_no_W_no_C(deltas,WVvals,param_grid,zord,savename,init_cond,pt):
     ax.set_ylabel(r"volunteer wheat")
     ax.set_zlabel("winter wheat yield")
     ax.set_zlim(zlim)
-    plt.savefig(savename+"_{:0.2f}".format(init_cond).replace(".","_")+".pdf")
+    plt.savefig(savename+"_{:0.2f}".format(init_cond).replace(".","_")+"alpha_{}.pdf".format(int(alpha)))
     # plt.show()
 
 
-def plot_delta_climate(deltas,delta_inds,WVvals,Cvals,param_grid,savename,initial_condition):
+def plot_delta_climate(deltas,delta_inds,WVvals,param_grid,savename,initial_condition):
     plt.figure()
 
-    ref = np.squeeze(param_grid[:1,-1:,:])
+    # cmap = mpl.cm.get_cmap('winter', len(delta_inds))
+    cmap = mpl.cm.rainbow(np.linspace(0.0, 1.0, len(delta_inds)))
 
-    for i in delta_inds:
+    for j,i in enumerate(delta_inds):
         Z3 = np.squeeze(param_grid[:1,i:i+1,:])
-        Z4 = np.squeeze(Z3-ref)
-        plt.plot(WVvals,Z4,linewidth=2,label=r"$\delta$ = {:.02f}".format(1-deltas[i]))
+        plt.plot(WVvals,Z3,linewidth=2,label=r"$\delta$ = {:.02f}".format(1-deltas[i][0]),c=cmap[j])
 
-    # am = np.squeeze(clim_grid[:1,:1,:])
-    # ro = np.squeeze(clim_grid[2:,:1,:])
-    clim_diff = parameters.gamma(Cvals, "amb") - parameters.gamma(Cvals, "ro")
-    plt.plot(WVvals,[clim_diff]*len(WVvals),"k",linewidth=2,label="AMB - ROS+OTC")
+    ro = np.squeeze(param_grid[-1:,-1:,:])
+    plt.plot(WVvals,ro,"k",linewidth=2,label="ROS+OTC")
+
+    ot = np.squeeze(param_grid[1:2,-1:,:])
+    plt.plot(WVvals,ot,"gray",linewidth=2,label="OTC")
 
     lgd = plt.legend(fontsize=16,bbox_to_anchor=(1,1))
-    plt.ylim([-0.5,0])
+    plt.ylim([0,1.35])
     plt.xlabel(r"volunteer wheat plants per m$^2$")
-    plt.ylabel(r"$\Delta$ ambient winter wheat yield")
+    plt.ylabel(r"winter wheat yield")
     plt.savefig(savename+"_{:0.2f}".format(initial_condition).replace(".","_")+".pdf",bbox_inches="tight",bbox_extra_artists=(lgd,))
     # plt.show()
 
 
-def runhilo(savenamelo,savenamehi,ptlo,pthi,initial_condition):
+def runhilo(savenamelo,savenamehi,ptlo,pthi,initial_condition,alpha):
     Cvals,WVvals,Wvals,zord = params_lowcheatgrass()
-    param_grid = simulate(Cvals,WVvals,Wvals,initial_condition)
-    make_plot_no_W(Cvals, WVvals, param_grid, zord, savenamelo, initial_condition,ptlo)
+    param_grid = simulate(Cvals,WVvals,Wvals,initial_condition,alpha=alpha)
+    make_plot_no_W(Cvals, WVvals, param_grid, zord, savenamelo, initial_condition,ptlo,alpha)
     Cvals,WVvals,Wvals,zord = params_highcheatgrass()
-    param_grid = simulate(Cvals,WVvals,Wvals,initial_condition)
-    make_plot_no_W(Cvals, WVvals, param_grid, zord, savenamehi, initial_condition,pthi)
+    param_grid = simulate(Cvals,WVvals,Wvals,initial_condition,alpha=alpha)
+    make_plot_no_W(Cvals, WVvals, param_grid, zord, savenamehi, initial_condition,pthi,alpha)
 
 
-def run01(savenamelo = "grid_results_locheatgrass_IC",savenamehi = "grid_results_hicheatgrass_IC",ptlo = (35,100,1.1),pthi = (150,100,0.6)):
+def run01(savenamelo = "grid_results_locheatgrass_IC",savenamehi = "grid_results_hicheatgrass_IC",ptlo = (35,100,1.1),pthi = (150,100,0.6),alpha=10):
     initial_condition = 0.1
-    runhilo(savenamelo, savenamehi, ptlo, pthi, initial_condition)
+    runhilo(savenamelo, savenamehi, ptlo, pthi, initial_condition,alpha)
 
 
-def run10(savenamelo = "grid_results_locheatgrass_IC",savenamehi = "grid_results_hicheatgrass_IC",ptlo = (35,100,1.1),pthi = (150,100,0.6)):
+def run10(savenamelo = "grid_results_locheatgrass_IC",savenamehi = "grid_results_hicheatgrass_IC",ptlo = (35,100,1.1),pthi = (150,100,0.6),alpha=10):
     initial_condition = 1.0
-    runhilo(savenamelo,savenamehi,ptlo,pthi,initial_condition)
+    runhilo(savenamelo,savenamehi,ptlo,pthi,initial_condition,alpha)
 
 
-def rundeltas(param_func,delta_inds,pt):
-    initial_condition = 0.5
+def rundeltas(param_func,delta_inds,pt,outfile="param_grid.npy",initial_condition=0.5):
     Cvals, WVvals, Wvals, deltas, zord,alpha = param_func()
     param_grid = simulate_with_deltas(Cvals,WVvals,Wvals,initial_condition,deltas,alpha)
-    make_plot_no_W_no_C(deltas, WVvals, param_grid, zord, "grid_results_deltas_C{}_alpha{}_IC".format(Cvals,alpha), initial_condition, pt)
-    # clim_grid = simulate_with_deltas(Cvals,WVvals,Wvals,0.0,[1.0],alpha)
-    plot_delta_climate(deltas,delta_inds,WVvals, Cvals, param_grid,"delta_vs_climate_C{}_alpha{}_IC".format(Cvals,alpha),initial_condition)
+    np.save(open(outfile,"wb"),param_grid)
+    delta_plots(param_grid,param_func,delta_inds,pt,initial_condition)
     return param_grid
 
 
-def multiple_delta_runs():
-    pg=rundeltas(params_deltas_volwheat_1,[-19,-17,-15,-13,-11,-9,-7,-6,-5,-3],pt=(0.5,100,0.8))
-    # pg=rundeltas(params_deltas_volwheat_2,[-9,-7,-6,-5,-2],pt=(0.5,100,0.8))
-    pg=rundeltas(params_deltas_volwheat_3,[-19,-17,-15,-13,-11,-9,-7,-6,-5,-3],pt=(0.5,100,0.5))
-    # pg=rundeltas(params_deltas_volwheat_4,[-9,-7,-6,-5,-2],pt=(0.5,100,0.5))
+def delta_plots(param_grid,param_func,delta_inds,pt,alpha,initial_condition=0.5):
+    if isinstance(param_grid, str):
+        param_grid = np.load(param_grid)
+    Cvals, WVvals, Wvals, deltas, zord,alpha = param_func()
+    make_plot_no_W_no_C(deltas, WVvals, param_grid, zord, "grid_results_deltas_C{}_alpha{}_IC".format(Cvals,alpha), initial_condition, pt,alpha)
+    plot_delta_climate(deltas,delta_inds,WVvals, param_grid,"delta_vs_climate_C{}_alpha{}_IC".format(Cvals,alpha),initial_condition)
+
+
+def multiple_delta_runs(delta_inds=sorted(list(range(0,19,2))+[13])[::-1]):
+    pg=rundeltas(params_deltas_volwheat_1,delta_inds,pt=(0.5,100,1.05),outfile="param_grid1.npy")
+    pg=rundeltas(params_deltas_volwheat_2,delta_inds,pt=(0.5,100,0.75),outfile="param_grid2.npy")
+    pg=rundeltas(params_deltas_volwheat_3,delta_inds,pt=(0.5,100,1.05),outfile="param_grid3.npy")
+    pg=rundeltas(params_deltas_volwheat_4,delta_inds,pt=(0.5,100,0.75),outfile="param_grid4.npy")
+
+
+def multiple_delta_plots(delta_inds=sorted(list(range(0,19,2))+[13])[::-1]):
+    pg=delta_plots("param_grid1.npy",params_deltas_volwheat_1,delta_inds,(0.5,100,1.05),10)
+    pg=delta_plots("param_grid2.npy",params_deltas_volwheat_2,delta_inds,(0.5,100,1.05),1)
+    pg=delta_plots("param_grid3.npy",params_deltas_volwheat_3,delta_inds,(0.5,100,0.75),10)
+    pg=delta_plots("param_grid4.npy",params_deltas_volwheat_4,delta_inds,(0.5,100,0.75),1)
+
 
 if __name__ == "__main__":
-    multiple_delta_runs()
-    # run01()
+    multiple_delta_plots()
+    # multiple_delta_runs()
+    # run01(alpha=1)
     # run10()
 
 
