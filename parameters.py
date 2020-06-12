@@ -2,6 +2,7 @@ import numpy as np
 
 
 def times(climate):
+    # Units of two weeks
     x0 = 3
     x4 = 3
     x5 = 1
