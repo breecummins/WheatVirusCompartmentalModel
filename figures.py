@@ -100,22 +100,22 @@ def make_plot_no_W(Cvals,WVvals,param_grid,zord,savename,init_cond,pt,alpha):
     zlim=[0.0,1.35]
 
     Z3 = np.squeeze(param_grid[2:,:,:,:1])
-    ax.plot_surface(X.transpose(), Y.transpose(), Z3,label="ROS+OTC",color="firebrick",zorder=zord["hot/dry"])
+    ax.plot_surface(X.transpose(), Y.transpose(), Z3,label="warm/dry",color="firebrick",zorder=zord["hot/dry"])
     p3 = plt.Rectangle((0, 0), 1, 1, fc="firebrick")
 
 
     Z1 = np.squeeze(param_grid[:1,:,:,:1])
-    ax.plot_surface(X.transpose(), Y.transpose(), Z1,label="AMB",color="darksalmon",zorder=zord["ambient"])
-    p1 = plt.Rectangle((0, 0), 1, 1, fc="darksalmon")
+    ax.plot_surface(X.transpose(), Y.transpose(), Z1,label="ambient",color="darkgreen",zorder=zord["ambient"])
+    p1 = plt.Rectangle((0, 0), 1, 1, fc="darkgreen")
 
     Z2 = np.squeeze(param_grid[1:2,:,:,:1])
-    ax.plot_surface(X.transpose(), Y.transpose(), Z2,label="OTC",color="red",zorder=zord["hot"])
-    p2 = plt.Rectangle((0, 0), 1, 1, fc="red")
+    ax.plot_surface(X.transpose(), Y.transpose(), Z2,label="warm",color="darkorange",zorder=zord["hot"])
+    p2 = plt.Rectangle((0, 0), 1, 1, fc="darkorange")
 
     f = lambda x,y,z: proj3d.proj_transform(x,y,z, ax.get_proj())[:2]
-    ax.legend([p1,p2,p3],['AMB','OTC','ROS+OTC'],loc="lower left", bbox_to_anchor=f(*pt),
+    ax.legend([p1,p2,p3],['ambient','warm','warm/dry'],loc="lower left", bbox_to_anchor=f(*pt),
               bbox_transform=ax.transData)
-    ax.set_xlabel(r"B. tectorum")
+    ax.set_xlabel(r"\textit{B. tectorum}")
     ax.set_ylabel(r"volunteer wheat")
     ax.set_zlabel("winter wheat yield")
     ax.set_zlim(zlim)
@@ -132,26 +132,26 @@ def make_plot_no_W_no_C(deltas,WVvals,param_grid,zord,savename,init_cond,pt,alph
     zlim=[0.0,1.35]
 
     Z3 = np.squeeze(param_grid[2:,:-1,:])
-    ax.plot_surface(X.transpose(), Y.transpose(), Z3,label="ROS+OTC",color="firebrick",zorder=zord["hot/dry"])
+    ax.plot_surface(X.transpose(), Y.transpose(), Z3,label="warm/dry",color="firebrick",zorder=zord["hot/dry"])
     p3 = plt.Rectangle((0, 0), 1, 1, fc="firebrick")
 
 
     Z1 = np.squeeze(param_grid[:1,:-1,:])
-    ax.plot_surface(X.transpose(), Y.transpose(), Z1,label="AMB",color="darksalmon",zorder=zord["ambient"])
-    p1 = plt.Rectangle((0, 0), 1, 1, fc="darksalmon")
+    ax.plot_surface(X.transpose(), Y.transpose(), Z1,label="ambient",color="darkgreen",zorder=zord["ambient"])
+    p1 = plt.Rectangle((0, 0), 1, 1, fc="darkgreen")
 
     Z2 = np.squeeze(param_grid[1:2,:-1,:])
-    ax.plot_surface(X.transpose(), Y.transpose(), Z2,label="OTC",color="red",zorder=zord["hot"])
-    p2 = plt.Rectangle((0, 0), 1, 1, fc="red")
+    ax.plot_surface(X.transpose(), Y.transpose(), Z2,label="warm",color="darkorange",zorder=zord["hot"])
+    p2 = plt.Rectangle((0, 0), 1, 1, fc="darkorange")
 
     f = lambda x,y,z: proj3d.proj_transform(x,y,z, ax.get_proj())[:2]
-    ax.legend([p1,p2,p3],['AMB','OTC','ROS+OTC'],loc="lower left", bbox_to_anchor=f(*pt),
+    ax.legend([p1,p2,p3],['ambient','warm','warm/dry'],loc="lower left", bbox_to_anchor=f(*pt),
               bbox_transform=ax.transData)
     ax.set_xlabel(r"$\delta$")
     ax.set_ylabel(r"volunteer wheat")
     ax.set_zlabel("winter wheat yield")
     ax.set_zlim(zlim)
-    plt.savefig(savename+"_{:0.2f}".format(init_cond).replace(".","_")+"alpha_{}.pdf".format(int(alpha)))
+    plt.savefig(savename+"_{:0.2f}".format(init_cond).replace(".","_")+".pdf".format(int(alpha)))
     # plt.show()
 
 
@@ -166,10 +166,10 @@ def plot_delta_climate(deltas,delta_inds,WVvals,param_grid,savename,initial_cond
         plt.plot(WVvals,Z3,linewidth=2,label=r"$\delta$ = {:.02f}".format(1-deltas[i][0]),c=cmap[j])
 
     ro = np.squeeze(param_grid[-1:,-1:,:])
-    plt.plot(WVvals,ro,"k",linewidth=2,label="ROS+OTC")
+    plt.plot(WVvals,ro,"k",linewidth=2,label="warm/dry")
 
     ot = np.squeeze(param_grid[1:2,-1:,:])
-    plt.plot(WVvals,ot,"gray",linewidth=2,label="OTC")
+    plt.plot(WVvals,ot,"gray",linewidth=2,label="warm")
 
     lgd = plt.legend(fontsize=16,bbox_to_anchor=(1,1))
     plt.ylim([0,1.35])
@@ -182,9 +182,11 @@ def plot_delta_climate(deltas,delta_inds,WVvals,param_grid,savename,initial_cond
 def runhilo(savenamelo,savenamehi,ptlo,pthi,initial_condition,alpha):
     Cvals,WVvals,Wvals,zord = params_lowcheatgrass()
     param_grid = simulate(Cvals,WVvals,Wvals,initial_condition,alpha=alpha)
+    np.save(open("param_grid_lo.npy","wb"),param_grid)
     make_plot_no_W(Cvals, WVvals, param_grid, zord, savenamelo, initial_condition,ptlo,alpha)
     Cvals,WVvals,Wvals,zord = params_highcheatgrass()
     param_grid = simulate(Cvals,WVvals,Wvals,initial_condition,alpha=alpha)
+    np.save(open("param_grid_hi.npy","wb"),param_grid)
     make_plot_no_W(Cvals, WVvals, param_grid, zord, savenamehi, initial_condition,pthi,alpha)
 
 
@@ -229,10 +231,10 @@ def multiple_delta_plots(delta_inds=sorted(list(range(0,19,2))+[13])[::-1]):
 
 
 if __name__ == "__main__":
-    multiple_delta_plots()
     # multiple_delta_runs()
-    # run01(alpha=1)
-    # run10()
+    multiple_delta_plots()
+    run01()
+    run10()
 
 
 
